@@ -148,9 +148,10 @@ visNetwork(nodes, edges, height = "500px", width = "100%") %>%
   visLayout(randomSeed = 123)
 
 nodes <- jsonlite::fromJSON("https://raw.githubusercontent.com/datastorm-open/datastorm-open.github.io/master/visNetwork/data/nodes_miserables.json")
-
+nodes <- jsonlite::fromJSON("https://raw.githubusercontent.com/FJCU-Information-Project/sna/main/gov.json?token=ATFUORTAMNUA6HSJD5FDABDBRO5I6")
 edges <- jsonlite::fromJSON("https://raw.githubusercontent.com/datastorm-open/datastorm-open.github.io/master/visNetwork/data/edges_miserables.json")
 
+ # subset(nodes,label=="Myriel")
 
 visNetwork(nodes, edges, height = "700px", width = "100%") %>%
   visOptions(selectedBy = "group", 
