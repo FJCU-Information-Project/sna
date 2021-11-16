@@ -1,12 +1,31 @@
 # data used in next examples
 install.packages("visNetwork")
 library("visNetwork")
-#example node and edge
-nodes <- jsonlite::fromJSON("https://raw.githubusercontent.com/datastorm-open/datastorm-open.github.io/master/visNetwork/data/nodes_miserables.json")
-edges <- jsonlite::fromJSON("https://raw.githubusercontent.com/datastorm-open/datastorm-open.github.io/master/visNetwork/data/edges_miserables.json")
+install.packages("RODBC")
+install.packages("dbConnect")
+install.packages("DBI")
+install.packages("gWidgets")
+install.packages("RMySQL")
+install.packages("xlsx")
+
+library(RODBC)
+library(dbConnect)
+library(DBI)
+library(gWidgets)
+library(RMySQL)
+library(xlsx)
 #traffic project node and edge link
 nodes <- jsonlite::fromJSON("https://raw.githubusercontent.com/FJCU-Information-Project/sna/main/gov_nodes.json")
 edges <- jsonlite::fromJSON("https://raw.githubusercontent.com/FJCU-Information-Project/sna/main/gov_edges.json")
+connect = dbConnect(MySQL(), dbname = "test",username = "root",
+                    password = "IM39project",host = "localhost")
+dbListTables(connect)
+t1 = dbGetQuery(connect ,"select * from `case`")
+
+city = dbGetQuery(connect ,"select CITY from `case`")
+t1 = dbGetQuery(connect ,"select * from `case`", iconv(?city,"CP936","UTF8"))
+city <- iconv(city, "UTF8", "CP396")
+
 id->c(0:19) #20列id
 ID->data.frame(id)
 nodes<-nodes[0:20,c("區","肇事因素個別")]
