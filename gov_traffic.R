@@ -18,16 +18,21 @@ library(xlsx)
 nodes <- jsonlite::fromJSON("https://raw.githubusercontent.com/FJCU-Information-Project/sna/main/gov_nodes.json")
 edges <- jsonlite::fromJSON("https://raw.githubusercontent.com/FJCU-Information-Project/sna/main/gov_edges.json")
 connect = dbConnect(MySQL(), dbname = "test",username = "root",
-                    password = "IM39project",host = "localhost")
+                    password = "IM39project",host = "localhost",DBMSencoding="UTF8")
+myconn= odbcConnect(MySQL(), dbname = "test",username = "root",
+                    password = "IM39project",host = "localhost",DBMSencoding="UTF8")
+#myconn= odbcConnect(dsn = "test",uid = "root",pwd = "IM39project",DBMSencoding="UTF8")
 dbListTables(connect)
-t1 = dbGetQuery(connect ,"select * from `case`")
-
+t1 <- dbSendQuery(conn ,"SET NAMES gbk")
+t1 <- dbGetQuery(connect ,"select * from `case`")
+Encoding(t1)<-"UTF8"
+Encoding(t1)<-"UTF8"
 city = dbGetQuery(connect ,"select CITY from `case`")
 t1 = dbGetQuery(connect ,"select * from `case`", iconv(?city,"CP936","UTF8"))
 city <- iconv(city, "UTF8", "CP396")
 
-id->c(0:19) #20列id
-ID->data.frame(id)
+id<-c(0:19) #20列id
+ID<-data.frame(id)
 nodes<-nodes[0:20,c("區","肇事因素個別")]
 traffic_nodes<-cbind(ID,nodes) #將id欄和node欄合併
 # setnames(資料,舊變數名稱,新變數名稱)
