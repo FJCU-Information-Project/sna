@@ -17,17 +17,19 @@ library(xlsx)
 #traffic project node and edge link
 nodes <- jsonlite::fromJSON("https://raw.githubusercontent.com/FJCU-Information-Project/sna/main/gov_nodes.json")
 edges <- jsonlite::fromJSON("https://raw.githubusercontent.com/FJCU-Information-Project/sna/main/gov_edges.json")
-connect = dbConnect(MySQL(), dbname = "test",username = "root",
-                    password = "IM39project",host = "localhost",DBMSencoding="UTF8")
+
 myconn= odbcConnect(MySQL(), dbname = "test",username = "root",
                     password = "IM39project",host = "localhost",DBMSencoding="UTF8")
-#myconn= odbcConnect(dsn = "test",uid = "root",pwd = "IM39project",DBMSencoding="UTF8")
+#start
+
+connect = dbConnect(MySQL(), dbname = "trans",username = "root",
+                    password = "IM39project",host = "localhost",DBMSencoding="UTF8")
 dbListTables(connect)
-t1 <- dbSendQuery(conn ,"SET NAMES gbk")
-t1 <- dbGetQuery(connect ,"select * from `case`")
+t1<- dbSendQuery(connect,"SET NAMES gbk")
+t1<- dbGetQuery(connect ,"select * from `node`")
 Encoding(t1)<-"UTF8"
-Encoding(t1)<-"UTF8"
-city = dbGetQuery(connect ,"select CITY from `case`")
+light = dbGetQuery(connect ,"select light from `case`")
+t2 <- dbGetQuery(connect ,"select * from `case` where LIGHT=9")
 t1 = dbGetQuery(connect ,"select * from `case`", iconv(?city,"CP936","UTF8"))
 city <- iconv(city, "UTF8", "CP396")
 
