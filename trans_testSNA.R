@@ -67,8 +67,8 @@ edge<-edgestable[1:2]
 ccout <- visNetwork(nodes, edge, width = "100%", height = "500px")%>%
   visInteraction(navigationButtons = TRUE) %>%
   visIgraphLayout() %>% #靜態
-  visOptions(highlightNearest = TRUE, selectedBy= "group",
-             nodesIdSelection = list(enabled = TRUE,  selected = s_name)) %>%
+  visOptions(highlightNearest = TRUE, selectedBy= "label",
+            ) %>%
 visPhysics(solver = "forceAtlas2Based", 
            forceAtlas2Based = list(gravitationalConstant = -500))
 
