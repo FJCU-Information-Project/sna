@@ -57,23 +57,57 @@ t2<- dbGetQuery(connect ,"select * from `relationship`")
 #edges <- data.frame(from = c(from_id$name), to = c(to_id$name),value = c(round(rnorm(7162675,10))))
 #edges<- t2[3:4]
 
-edges <- data.frame(from = c(t2$from_id), to = c(t2$to_id),value = c(round(rnorm(7162675,10))))
+#edges <- data.frame(from = c(t2$from_id), to = c(t2$to_id),value = c(round(rnorm(7162675,10))))
 # 觀察第一個與第二個 cols有沒有重複關聯值 true表示重複
 edgesrows2 <- duplicated(edges[, c(1, 2)])  
 # 將from to 重覆的關聯刪除
 edgestable <- edges[!edgesrows2,]
 edge<-edgestable[1:2]
-
-ccout <- visNetwork(nodes, edge, width = "100%", height = "500px")%>%
-  visInteraction(navigationButtons = TRUE) %>%
+ccout <- visNetwork(nodes, edge, width = "100%", height = "1500px")%>%
   visIgraphLayout() %>% #靜態
   visOptions(highlightNearest = TRUE, selectedBy= "label",
-            ) %>%
-visPhysics(solver = "forceAtlas2Based", 
-           forceAtlas2Based = list(gravitationalConstant = -500))
+             )
 
 visSave(ccout, file = "E:/GitHub/path.html",selfcontained = FALSE, background = "white")
- ###
+# 計算第一欄與第二欄位次數
+# edgescount<-edges[,c(1,2)]
+# edgescount<-[,(.N),by=edges[,c(1, 2)]]
+# a<-NBA1516DT[,.(.N,AssistsMean=mean(Assists)),
+#           by=Team]
+# ccout <- visNetwork(nodes, edges, width = "100%", height = "500px")%>%
+#   visInteraction(navigationButtons = TRUE)
+# visIgraphLayout(
+#   layout = "layout_nicely",
+#   physics = FALSE,
+#   smooth = FALSE,
+#   type = "square",
+#   randomSeed = NULL,
+#   layoutMatrix = NULL,
+# ) %>% #靜態
+#   visOptions(highlightNearest = TRUE, selectedBy= "label",
+#              nodesIdSelection = list(enabled = TRUE,  selected = s_name))
+# visPhysics(solver = "forceAtlas2Based",
+#            forceAtlas2Based = list(gravitationalConstant= -500))
+# 
+# 
+# visSave(ccout, file = "E:/GitHub/path.html",selfcontained = FALSE, background = "white")
+# ccout <- visNetwork(nodes, edge, width = "100%", height = "500px")%>%
+#   # visInteraction(navigationButtons = TRUE) %>%
+#   visIgraphLayout(
+#                   layout = "layout_with_sugiyama",
+#                   physics = TRUE,
+#                   smooth = TRUE,
+#                   type = "full",
+#                   randomSeed = 123,
+#                   layoutMatrix = NULL,) %>% #靜態
+#   
+#   visOptions(highlightNearest = TRUE, selectedBy= "label",
+#                nodesIdSelection = list(enabled = TRUE,  selected = s_name)) %>%
+# visPhysics(solver = "forceAtlas2Based", 
+#            forceAtlas2Based = list(gravitationalConstant = -500))
+# 
+# visSave(ccout, file = "E:/GitHub/path.html",selfcontained = FALSE, background = "white")
+#  ###
 #edges<- t2[3:4]
 
 ###
