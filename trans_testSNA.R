@@ -40,7 +40,6 @@ edgesrows2 <- duplicated(edges[, c(1, 2)])
 edgestable <- edges[!edgesrows2,]
 edge<-edgestable[1:2]
 ccout <- visNetwork(nodes, edge, width = "100%", height = "500px")%>%
-  visIgraphLayout() %>% #靜態
   visNodes(size = 30)%>%
   visOptions(highlightNearest = TRUE, selectedBy= "label")%>%
   visPhysics(stabilization = FALSE,#動態效果
