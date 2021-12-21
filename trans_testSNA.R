@@ -2,8 +2,8 @@
 install.packages("visNetwork")
 install.packages("dbConnect")
 install.packages("RMySQL")
-library("visNetwork")
-library("sqldf")
+library(visNetwork)
+library(sqldf)
 library(RODBC)
 library(dbConnect)
 library(DBI)
@@ -11,6 +11,7 @@ library(gWidgets)
 library(RMySQL)
 library(xlsx)
 library(sqldf)
+library(igraph)
 connect = dbConnect(MySQL(), dbname = "trans",username = "root",
                     password = "IM39project",host = "localhost",DBMSencoding="UTF8")
 dbListTables(connect)
@@ -18,55 +19,33 @@ Sys.setlocale("LC_ALL","Chinese") #解決中文編碼問題
 t1<- dbSendQuery(connect,"SET NAMES gbk")
 t1<- dbGetQuery(connect ,"select * from `node`")
 a<- dbGetQuery(connect ,"select * from `attribute`")
-attribute<- dbGetQuery(connect ,"select * from `attribute`")
-r1<- dbGetQuery(connect ,"select * from `relationship`")
+t2<- dbGetQuery(connect ,"select * from `relationship`")
+t3<- dbGetQuery(connect ,"select * from `relationship` where `case_id`=1")
+w<- dbGetQuery(connect ,"select * from `weight`")
 #t3代表node表 將節點與屬性left join得到attr_name 
 t3<-t1
 names(a)[1] <- "attribute"
 names(a)[2] <- "attr_name"
 getTitle<- merge(x = t3, y = a, by = "attribute", all.x = TRUE)#left join
-
-#將node表與relationship表合併做left join 欲取得from_id的中文
-test<-t1
-names(test)[1] <- "from_id"
-r_id<-data.frame(from_id=c(test$from_id),name=c(test$name))
-#names(r_id)[1] <- "id"
-#r2<-data.frame(id=c(r1$id),from_id=c(r1$from_id))
-r2<-r1[1:3]
-from_id<- merge(x = r2, y = r_id, by = "from_id", all.x = TRUE)
-
-#欲取得to_id的中文
-tt_id<-t1
-names(tt_id)[1] <- "to_id"
-to_id<- merge(x = r1, y = tt_id, by = "to_id", all.x = TRUE)
-#names(t1)[3] <- "group"
 s_name <- t1[1,1]
-#t1$attribute
-# nodes <- data.frame(id = c(t1$id), group = c(attribute$name), 
-#                     #color = c(n$color), 
-#                     label = c(t1$name), 
-#                     title = paste("<p>", getTitle$attr_name,"<br>",getTitle$enname,"</p>"),
-#                     font.size = 30)
 nodes <- data.frame(id = c(getTitle$id), group = c(getTitle$attr_name), 
                     #color = c(n$color), 
-                    label = c(getTitle$name), 
+                    label = paste(getTitle$name), 
                     title = paste("<p>", getTitle$attr_name,"<br>",getTitle$enname,"</p>"),
                     font.size = 20)
-t2<- dbGetQuery(connect ,"select * from `relationship`")
-#from<-dbGetQuery(connect ,"select `from_id` from `relationship`")
-#edges <- data.frame(from = c(from_id$name), to = c(to_id$name),value = c(round(rnorm(7162675,10))))
-#edges<- t2[3:4]
-
-#edges <- data.frame(from = c(t2$from_id), to = c(t2$to_id),value = c(round(rnorm(7162675,10))))
+edges <- data.frame(from = c(t2$from_id), to = c(t2$to_id))
 # 觀察第一個與第二個 cols有沒有重複關聯值 true表示重複
 edgesrows2 <- duplicated(edges[, c(1, 2)])  
 # 將from to 重覆的關聯刪除
 edgestable <- edges[!edgesrows2,]
 edge<-edgestable[1:2]
-ccout <- visNetwork(nodes, edge, width = "100%", height = "1500px")%>%
+ccout <- visNetwork(nodes, edge, width = "100%", height = "500px")%>%
   visIgraphLayout() %>% #靜態
-  visOptions(highlightNearest = TRUE, selectedBy= "label",
-             )
+  visNodes(size = 30)%>%
+  visOptions(highlightNearest = TRUE, selectedBy= "label")%>%
+  visPhysics(stabilization = FALSE,#動態效果
+             solver = "repulsion",
+             repulsion = list(gravitationalConstant = 1500))
 
 visSave(ccout, file = "E:/GitHub/path.html",selfcontained = FALSE, background = "white")
 # 計算第一欄與第二欄位次數
