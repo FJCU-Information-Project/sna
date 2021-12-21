@@ -47,7 +47,7 @@ ccout <- visNetwork(nodes, edge, width = "100%", height = "500px")%>%
              solver = "repulsion",
              repulsion = list(gravitationalConstant = 1500))
 
-visSave(ccout, file = "E:/GitHub/path.html",selfcontained = FALSE, background = "white")
+visSave(ccout, file = "E:/GitHub/trans/path.html",selfcontained = FALSE, background = "white")
 # 計算第一欄與第二欄位次數
 # edgescount<-edges[,c(1,2)]
 # edgescount<-[,(.N),by=edges[,c(1, 2)]]
