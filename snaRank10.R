@@ -35,7 +35,7 @@ total_nodes<- data.frame(id = c(all_node$id), group = c(all_node$attr_name),
                          title = paste("<p>", all_node$attr_name,"<br>",all_node$enname,"</p>"),
                          font.size = 20)
 weightRelationship<- data.frame(from = c(bindnode$from_id), to = c(bindnode$to_id)
-                                ,value=c(bindnode$total),font.size =10,label = paste("權重", bindnode$total),font.color ="blue")
+                                ,value=c(bindnode$total),font.size =10,label = paste("權重", bindnode$total),font.color ="brown")
 snaRank10<-visNetwork(total_nodes,weightRelationship, width = "100%", height = "500px")%>%
   visNodes(size = 30)%>%
   visOptions(highlightNearest = TRUE, selectedBy= "label",nodesIdSelection = list(enabled = TRUE,
