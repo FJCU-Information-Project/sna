@@ -64,4 +64,16 @@ ranknodename<- merge(x = rank, y = ranknode, by = "to_id", all.x = TRUE)#left jo
 library(dplyr)#使用arrange函數
 newrank<-arrange(ranknodename, Rank) # 按 Rank 列進行升序排列
 rankTable<- data.frame(肇事因素 = c(newrank$name), 關聯肇事因素排名 = c(newrank$Rank),Case總數=c(newrank$total))
+#排名前十關聯table的csv
 write.csv(rankTable,"E:/GitHub/trans/public/rankTable.csv", row.names = FALSE)
+install.packages("tidyverse")
+install.packages("jsonlite")
+library(tidyverse)
+library(jsonlite)
+rankjson <- 
+  as_tibble(rankTable, rownames = 'id') %>% 
+  slice(1:10) %>% 
+  select(肇事因素, 關聯肇事因素排名, Case總數)
+rankjson<-toJSON(x = rankjson, dataframe = 'rows', pretty = T)
+#顯示排名前十關聯table的json
+save(rankjson, file="E:/GitHub/trans/public/rankTable.json")
