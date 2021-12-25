@@ -36,7 +36,7 @@ total_nodes<- data.frame(id = c(all_node$id), group = c(all_node$attr_name),
                          font.size = 20)
 weightRelationship<- data.frame(from = c(bindnode$from_id), to = c(bindnode$to_id)
                                 ,value=c(bindnode$total),font.size =10,label = paste("權重", bindnode$total),font.color ="blue")
-sna_a<-visNetwork(total_nodes,weightRelationship, width = "100%", height = "500px")%>%
+snaRank10<-visNetwork(total_nodes,weightRelationship, width = "100%", height = "500px")%>%
   visNodes(size = 30)%>%
   visOptions(highlightNearest = TRUE, selectedBy= "label",nodesIdSelection = list(enabled = TRUE,
                                                                                   style = 'width: 200px; height: 26px;
@@ -48,4 +48,4 @@ sna_a<-visNetwork(total_nodes,weightRelationship, width = "100%", height = "500p
              solver = "repulsion",
              repulsion = list(gravitationalConstant = 1500))
 
-visSave(sna_a, file = "C:/R_SNA/sna_a.html",selfcontained = FALSE, background = "white")
+visSave(snaRank10, file = "E:/GitHub/trans/public/snaRank10.html",selfcontained = FALSE, background = "white")
