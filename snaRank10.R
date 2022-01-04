@@ -14,11 +14,15 @@ connect = dbConnect(MySQL(), dbname = "trans",username = "root",
 dbListTables(connect)
 Sys.setlocale("LC_ALL","Chinese") #解決中文編碼問題
 node8<- dbSendQuery(connect,"SET NAMES gbk")
-node8<- dbGetQuery(connect ,"select * from `node` where `id`=11")
-relationship8<- dbGetQuery(connect ,"select * from `relationship` where `from_id`=11")
+args <- commandArgs(trailingOnly = TRUE)
+id <- 11
+node8<- dbGetQuery(connect ,paste("select * from `node` where `id`=", id))
+relationship8<- dbGetQuery(connect ,paste("select * from `relationship` where `from_id`=", id))
 #選擇from_id
-weight10<- dbGetQuery(connect ,"select * from `weight` where `from_id`=11 order by `total` desc")
-weightfor10<-weight10[1:10,]
+weight10<- dbGetQuery(connect ,paste("select * from `weight` where `from_id`=", id, " order by `total` desc"))
+count_toid<-(length(weight10$to_id))
+count_toid<-ceiling(count_toid*0.1)
+weightfor10<-weight10[1:count_toid,]
 bindnode<-weightfor10
 bn<-data.frame(id =bindnode[1,1])
 bb<-data.frame(id = c(bindnode$to_id))
@@ -66,13 +70,13 @@ newrank<-arrange(ranknodename, Rank) # 按 Rank 列進行升序排列
 rankTable<- data.frame(肇事因素 = c(newrank$name), 關聯肇事因素排名 = c(newrank$Rank),Case總數=c(newrank$total))
 #排名前十關聯table的csv
 write.csv(rankTable,"E:/GitHub/trans/public/rankTable.csv", row.names = FALSE)
-install.packages("tidyverse")
-install.packages("jsonlite")
+# install.packages("tidyverse")
+# install.packages("jsonlite")
 library(tidyverse)
 library(jsonlite)
 rankjson <- 
   as_tibble(rankTable, rownames = 'id') %>% 
-  slice(1:10) %>% 
+  slice(1:count_toid) %>% 
   select(肇事因素, 關聯肇事因素排名, Case總數)
 rankjson<-toJSON(x = rankjson, dataframe = 'rows', pretty = T)
 #顯示排名前十關聯table的json
