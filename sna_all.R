@@ -1,26 +1,30 @@
 #ctrl shift + c 多行註解
-install.packages("visNetwork")
-install.packages("dbConnect")
-install.packages("RMySQL")
+#install.packages("visNetwork")
+#install.packages("dbConnect")
+#install.packages("RMySQL")
 library(visNetwork)
-library(sqldf)
-library(RODBC)
-library(dbConnect)
-library(DBI)
-library(gWidgets)
+#library(sqldf)
+#library(RODBC)
+#library(dbConnect)
+#library(DBI)
+#library(gWidgets)
 library(RMySQL)
-library(xlsx)
-library(sqldf)
+#library(xlsx)
+#library(sqldf)
 library(igraph)
+
+
 connect = dbConnect(MySQL(), dbname = "trans",username = "root",
-                    password = "IM39project",host = "localhost",DBMSencoding="UTF8")
+                    password = "IM39project",host = "localhost",port=50306,DBMSencoding="UTF8")
 dbListTables(connect)
-Sys.setlocale("LC_ALL","Chinese") #解決中文編碼問題
-t1<- dbSendQuery(connect,"SET NAMES gbk")
+
+dbSendQuery(connect,"SET NAMES BIG5") # 設定資料庫連線編碼
+Sys.getlocale("LC_ALL") #解決中文編碼問題
+
 t1<- dbGetQuery(connect ,"select * from `node`")
 a<- dbGetQuery(connect ,"select * from `attribute`")
 t2<- dbGetQuery(connect ,"select * from `relationship`")
-t3<- dbGetQuery(connect ,"select * from `relationship` where `case_id`=1")
+t3<- dbGetQuery(connect ,paste("select * from `relationship` where `case_id` = 1"))
 w<- dbGetQuery(connect ,"select * from `weight`")
 #t3代表node表 將節點與屬性left join得到attr_name 
 t3<-t1
@@ -48,4 +52,5 @@ ccout <- visNetwork(nodes, abc, width = "100%", height = "500px")%>%
              solver = "repulsion",
              repulsion = list(gravitationalConstant = 1500))
 
-visSave(ccout, file = "E:/GitHub/trans/public/path.html",selfcontained = FALSE, background = "white")
+visSave(ccout, file = "../flask/templates/overall.html",selfcontained = FALSE, background = "white")
+print("Overall sucess")

@@ -22,7 +22,7 @@ dbSendQuery(connect,"SET NAMES BIG5") # 設定資料庫連線編碼
 Sys.getlocale(category = "LC_ALL") # 查詢系統編碼環境
 #Sys.setlocale("LC_ALL","Chinese") # 設定系統編碼為簡體中文
 args <- commandArgs(trailingOnly = TRUE)
-id <- args[1]
+id <- args[1] # CLI input parameter
 node8<- dbGetQuery(connect ,paste("select * from `node` where `id`=", id))
 relationship8<- dbGetQuery(connect ,paste("select * from `relationship` where `from_id`= ", id))
 #選擇from_id
@@ -67,7 +67,7 @@ snaRank10<-visNetwork(total_nodes,weightRelationship, width = "100%", height = "
              solver = "repulsion",
              repulsion = list(gravitationalConstant = 1500))
 
-visSave(snaRank10, file = "../trans/public/snaRank10.html",selfcontained = FALSE, background = "white")
+visSave(snaRank10, file = "../flask/templates/snaRank10.html",selfcontained = FALSE, background = "white")
 
 #顯示排名前十關聯名字case次數(權重)與排名數
 bindnode$Rank<-floor(rank(-bindnode$total))
@@ -90,7 +90,7 @@ rankTable<- data.frame(factor = c(newrank$name)
           ,caseNumber=c(newrank$total))
 print(rankTable)
 #排名前十關聯table的csv
-write.csv(rankTable,"../trans/public/rankTable.csv", row.names = FALSE, fileEncoding = "UTF-8")
+write.csv(rankTable,"../flask/rankTable.csv", row.names = FALSE, fileEncoding = "UTF-8")
 # install.packages("tidyverse")
 # install.packages("jsonlite")
 # library(tidyverse)
