@@ -20,12 +20,14 @@ dbSendQuery(connect,"SET NAMES BIG5") # 設定資料庫連線編碼
 Sys.getlocale("LC_ALL") #解決中文編碼問題
 
 
-count_1 <- dbGetQuery(connect ,"SELECT SUM(`total`) FROM weight group by from_id") #算出每個from_id有幾組關聯
+count_1 <- dbGetQuery(connect ,paste("SELECT from_id,SUM(`total`),`name` FROM trans.node n,trans.weight w WHERE n.`id` = ",inId," and w.`from_id` = ",inId,"  group by from_id ORDER BY SUM(`total`) DESC")) #算出每個from_id有幾組關聯
 count_total <- dbGetQuery(connect ,"SELECT SUM(`total`) FROM weight") #算出總共有幾組關聯
 degree_from_id <- dbGetQuery(connect ,"SELECT from_id FROM weight group by from_id")
-data <- data.frame(from_id=c(degree_from_id),count=c(count_1),count_total=c(count_total))
-degree_ans <- round(data[2]/data[3]*100, digits = 2)
-degree_dataframe <- data.frame(from_id=c(degree_from_id),degree=c(degree_ans)) 
+data <- data.frame(from_id=c(count_1$from_id),count=c(count_1[2]),count_total=c(count_total))
+degree_ans <- c(round(data[2]/data[3]*100, digits = 2))
+rank <- 1:dim(data)[1]
+
+degree_dataframe <- data.frame(rank=c(rank),from_id=c(count_1$from_id),from_id_name=c(count_1$name),degree=c(degree_ans)) 
 
 
 node_id <- dbGetQuery(connect ,paste("SELECT * FROM weight WHERE `from_id` = ",inId))
@@ -36,7 +38,7 @@ node <- data.frame(id=c(node_id[1,1],node_id$to_id),label = paste(node_name$id),
 rel_id <- dbGetQuery(connect ,paste("SELECT * FROM weight WHERE `from_id` = ",inId))
 edge <- data.frame(from=c(rel_id$from_id), to=c(rel_id$to_id), value=c(rel_id$total))
 edge$width <- rel_id$total
-#
+
 print(node)
 degree_pic <- visNetwork(node, edge, width = "100%", height = "500px")%>%
   visNodes(size = 30)%>%
@@ -52,8 +54,9 @@ degree_pic <- visNetwork(node, edge, width = "100%", height = "500px")%>%
 
 visSave(degree_pic, file = "../flask/templates/degree.html",selfcontained = FALSE, background = "white")
 print("before csv")
-degree_table<- data.frame(from_id = c(from_id_name$from_id),from_id_name = c(from_id_name$name),to_id=c(to_id_name$to_id),to_id_name=c(to_id_name$name),weight=c(rel_id$total))
+degree_table<- data.frame(from_id=c(count_1$from_id),from_id_name=c(count_1$name),degree=c(degree_ans))
 write.csv(degree_table,"../flask/degree_table.csv", row.names = FALSE, fileEncoding = "UTF-8")
+print("create csv")
 # install.packages("tidyverse")
 # install.packages("jsonlite")
 # library(tidyverse)
