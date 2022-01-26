@@ -14,7 +14,7 @@ inId <- args[1] # CLI input parameter
 
 
 connect = dbConnect(MySQL(), dbname = "trans",username = "root",
-                    password = "IM39project",host = "localhost",port=50306,DBMSencoding="UTF8")
+                    password = "IM39project",host = "140.136.155.121",port=50306,DBMSencoding="UTF8")
 dbListTables(connect)
 dbSendQuery(connect,"SET NAMES BIG5") # 設定資料庫連線編碼
 Sys.getlocale("LC_ALL") #解決中文編碼問題
