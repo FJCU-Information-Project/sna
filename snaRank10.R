@@ -1,27 +1,38 @@
 #ctrl shift + c 多行註解
+
+print("Hello Before library")
+
 library(visNetwork)
-library(sqldf)
-library(RODBC)
-library(dbConnect)
-library(DBI)
-library(gWidgets)
+#library(sqldf)
+#library(RODBC)
+#library(dbConnect)
+#library(DBI)
+#library(gWidgets)
 library(RMySQL)
-library(xlsx)
-library(sqldf)
+#library(xlsx)
 library(igraph)
+library(utf8)
+
+print("Hello After library")
+
 connect = dbConnect(MySQL(), dbname = "trans",username = "root",
                     password = "IM39project",host = "140.136.155.121",port=50306,DBMSencoding="UTF8")
 dbListTables(connect)
-Sys.setlocale("LC_ALL","Chinese") #解決中文編碼問題
-node8<- dbSendQuery(connect,"SET NAMES gbk")
-node8<- dbGetQuery(connect ,"select * from `node` where `id`=11")
-relationship8<- dbGetQuery(connect ,"select * from `relationship` where `from_id`=11")
+dbSendQuery(connect,"SET NAMES BIG5") # 設定資料庫連線編碼
+Sys.getlocale(category = "LC_ALL") # 查詢系統編碼環境
+#Sys.setlocale("LC_ALL","Chinese") # 設定系統編碼為簡體中文
+args <- commandArgs(trailingOnly = TRUE)
+id <- args[1] # CLI input parameter
+node8<- dbGetQuery(connect ,paste("select * from `node` where `id`=", id))
+relationship8<- dbGetQuery(connect ,paste("select * from `relationship` where `from_id`= ", id))
 #選擇from_id
-weight10<- dbGetQuery(connect ,"select * from `weight` where `from_id`=11 order by `total` desc")
-weightfor10<-weight10[1:10,]
+weight10<- dbGetQuery(connect ,paste("select * from `weight` where `from_id`= ", id, " order by `total` desc"))
+count_toid<-(length(weight10$to_id))
+count_toid<-ceiling(count_toid*0.1)
+weightfor10<-weight10[1:count_toid,]
 bindnode<-weightfor10
 bn<-data.frame(id =bindnode[1,1])
-bb<-data.frame(id = c(bindnode$to_id))
+bb<-data.frame(id = (bindnode$to_id))
 bb<-rbind(bn,bb)
 t3<- dbGetQuery(connect ,"select * from `node`")
 a<- dbGetQuery(connect ,"select * from `attribute`")
@@ -34,21 +45,29 @@ total_nodes<- data.frame(id = c(all_node$id), group = c(all_node$attr_name),
                          label = paste(all_node$name), 
                          title = paste("<p>", all_node$attr_name,"<br>",all_node$enname,"</p>"),
                          font.size = 20)
-weightRelationship<- data.frame(from = c(bindnode$from_id), to = c(bindnode$to_id)
-                                ,value=c(bindnode$total),font.size =10,label = paste("權重", bindnode$total),font.color ="brown")
+weightRelationship<- data.frame(from = c(bindnode$from_id)
+                                ,to = c(bindnode$to_id)
+                                ,value = c(bindnode$total)
+                                ,font.size = 10
+                                #,label = paste("權重", bindnode$total)
+                                # Why Error?
+                                ,font.color ="brown")
+print(total_nodes)
 snaRank10<-visNetwork(total_nodes,weightRelationship, width = "100%", height = "500px")%>%
   visNodes(size = 30)%>%
-  visOptions(highlightNearest = TRUE, selectedBy= "label",nodesIdSelection = list(enabled = TRUE,
-                                                                                  style = 'width: 200px; height: 26px;
-                                 background: #f8f8f8;
-                                 color: darkblue;
-                                 border:none;
-                                 outline:none;'))%>%
+  visOptions(highlightNearest = TRUE
+            , selectedBy= "label"
+            ,nodesIdSelection = list(enabled = TRUE
+                        ,style = 'width: 200px; height: 26px;
+                                  background: #f8f8f8;
+                                  color: darkblue;
+                                  border:none;
+                                  outline:none;'))%>%
   visPhysics(stabilization = FALSE,#動態效果
              solver = "repulsion",
              repulsion = list(gravitationalConstant = 1500))
 
-visSave(snaRank10, file = "E:/GitHub/trans/public/snaRank10.html",selfcontained = FALSE, background = "white")
+visSave(snaRank10, file = "../flask/templates/snaRank10.html",selfcontained = FALSE, background = "white")
 
 #顯示排名前十關聯名字case次數(權重)與排名數
 bindnode$Rank<-floor(rank(-bindnode$total))
@@ -63,17 +82,27 @@ names(ranknode)[1] <- "to_id"
 ranknodename<- merge(x = rank, y = ranknode, by = "to_id", all.x = TRUE)#left join
 library(dplyr)#使用arrange函數
 newrank<-arrange(ranknodename, Rank) # 按 Rank 列進行升序排列
-rankTable<- data.frame(肇事因素 = c(newrank$name), 關聯肇事因素排名 = c(newrank$Rank),Case總數=c(newrank$total))
+# rankTable<- data.frame(肇事因素 = c(newrank$name)
+#           , 關聯肇事因素排名 = c(newrank$Rank)
+#           ,Case總數=c(newrank$total))
+rankTable<- data.frame(factor = c(newrank$name)
+          ,factorRank = c(newrank$Rank)
+          ,caseNumber=c(newrank$total))
+print(rankTable)
 #排名前十關聯table的csv
-write.csv(rankTable,"E:/GitHub/trans/public/rankTable.csv", row.names = FALSE)
-install.packages("tidyverse")
-install.packages("jsonlite")
-library(tidyverse)
-library(jsonlite)
-rankjson <- 
-  as_tibble(rankTable, rownames = 'id') %>% 
-  slice(1:10) %>% 
-  select(肇事因素, 關聯肇事因素排名, Case總數)
-rankjson<-toJSON(x = rankjson, dataframe = 'rows', pretty = T)
-#顯示排名前十關聯table的json
-save(rankjson, file="E:/GitHub/trans/public/rankTable.json")
+write.csv(rankTable,"../flask/rankTable.csv", row.names = FALSE, fileEncoding = "UTF-8")
+# install.packages("tidyverse")
+# install.packages("jsonlite")
+# library(tidyverse)
+# library(jsonlite)
+# print(3)
+# rankjson <- 
+#   as_tibble(rankTable, rownames = 'id') %>% 
+#   slice(1:count_toid) %>% 
+#   select(factor, factorRank, caseNumber)
+# print(2)
+# rankjson<-toJSON(x = rankjson, dataframe = 'rows', pretty = T)
+# #顯示排名前十關聯table的json
+# print(1)
+# save(rankjson, file="E:/GitHub/trans/public/rankTable.json")
+# print(0)
