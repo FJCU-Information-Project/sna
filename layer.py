@@ -48,7 +48,7 @@ if conn:
         # SQL = "INSERT INTO `trans`.`layer` (factor_id, near_id, color, level) VALUES (%s, %s, %s, %s, %s)"
         # cursor.executemany(SQL, list)
         conn.commit()# 提交到 SQL
-    np.savetxt("numpy.csv", list, delimiter =",",fmt ='%s')
+    np.savetxt("numpy.csv", list, delimiter =",",fmt ='%s', encoding='UTF-8')
 cursor.close()
 conn.close()# 關閉 SQL 連線
 
