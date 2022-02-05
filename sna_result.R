@@ -24,12 +24,21 @@ rank_weight <- dbGetQuery(connect, ("select * from trans.result_weight where res
 count <- dbGetQuery(connect ,("select count(result_name) from trans.result_weight where result_name = '受傷'")) #計算資料筆數
 count_rank <- round(count[1,1]*0.01) #計算要顯示幾筆資料(目前設定前1%)
 list <- data.frame(rank=c(1:count_rank), c(rank_weight[1:count_rank,]))
+draw_data <- data.frame(c(list[1,])) #找到想印的名次的資料(目前是印權重第一名)
 
-from_id_name <- dbGetQuery(connect ,("select from_id,`name` from trans.node n,trans.result_weight r where n.id = r.from_id group by from_id"))
-to_id_name <- dbGetQuery(connect ,("select to_id,`name` from trans.node n,trans.result_weight r where n.id = r.to_id group by to_id"))
-node <- data.frame(id=c(from_id_name$from_id,to_id_name$to_id),name=c(from_id_name$name,to_id_name$name))
-edge <- data.frame(from=c(list$from_id), to=c(list$to_id), value=c(list$total))
-edge$width <- list$total
+from_id_name <- dbGetQuery(connect ,("select from_id,`name` from trans.node n,trans.result_weight r where result_name = '受傷' and n.id = r.from_id order by `total` desc"))
+table_from_id_name <- from_id_name[1:count_rank,2] #列出前1%的from_id_name
+to_id_name <- dbGetQuery(connect ,("select to_id,`name` from trans.node n,trans.result_weight r where result_name = '受傷' and n.id = r.to_id order by `total` desc"))
+table_to_id_name <- to_id_name[1:count_rank,2] #列出前1%的to_id_name
+
+draw_from_id <- draw_data[1,3] #找到from_id
+draw_to_id <- draw_data[1,4] #找到to_id
+weight <- draw_data[1,5] #找到weight
+draw_from_id_name <- dbGetQuery(connect ,("select from_id,`name` from trans.node n,trans.result_weight r where result_name = '受傷' and n.id = r.from_id and n.id = 139 group by from_id"))
+draw_to_id_name <- dbGetQuery(connect ,("select to_id,`name` from trans.node n,trans.result_weight r where result_name = '受傷' and n.id = r.to_id and n.id = 184 group by to_id"))
+node <- data.frame(id=c(draw_from_id,draw_to_id),label = c(draw_from_id_name[1,2],draw_to_id_name[1,2]),title = c(draw_from_id_name[1,1],draw_to_id_name[1,1]),font.size = 20)
+edge <- data.frame(from=c(draw_from_id), to=c(draw_to_id), value=c(weight))
+edge$width <- weight
 
 result_pic <- visNetwork(node, edge, width = "100%", height = "500px")%>%
   visNodes(size = 30)%>%
@@ -44,6 +53,6 @@ result_pic <- visNetwork(node, edge, width = "100%", height = "500px")%>%
              repulsion = list(gravitationalConstant = 1500))
 
 visSave(result_pic, file = "../flask/templates/result.html",selfcontained = FALSE, background = "white")
-print("before csv")
-result_table<- data.frame(from_id = c(from_id_name$from_id),from_id_name = c(from_id_name$name),to_id=c(to_id_name$to_id),to_id_name=c(to_id_name$name),weight=c(rel_id$total))
-write.csv(degree_table,"../flask/degree_table.csv", row.names = FALSE, fileEncoding = "UTF-8")
+
+result_table<- data.frame(rank=c(list$rank),from_id=c(list$from_id),from_id_name=c(table_from_id_name),to_id=c(list$to_id),to_id_name=c(table_to_id_name),total=c(list$total))
+write.csv(result_table,"../flask/result_table.csv", row.names = FALSE, fileEncoding = "UTF-8")
