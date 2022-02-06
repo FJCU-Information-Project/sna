@@ -6,7 +6,7 @@ if conn:
     cursor=conn.cursor()
     # SQL_truncate = "TRUNCATE `trans`.`layer`"
     # cursor.execute(SQL_truncate)
-    factorId = 17 #起始點變數
+    factorId = 2 #起始點變數
     times=2
     list=[]
     duplicate = 0
@@ -48,8 +48,8 @@ if conn:
         # SQL = "INSERT INTO `trans`.`layer` (factor_id, near_id, color, level) VALUES (%s, %s, %s, %s, %s)"
         # cursor.executemany(SQL, list)
         conn.commit()# 提交到 SQL
-    np.savetxt("numpy.csv", list, delimiter =",",fmt ='%s', encoding='UTF-8')
-cursor.close()
+    np.savetxt("layer.csv", list, delimiter =",",fmt ='%s', encoding='utf-8-sig')
+    cursor.close()
 conn.close()# 關閉 SQL 連線
 
 
