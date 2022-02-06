@@ -56,7 +56,7 @@ draw_sna_layer<-visNetwork(layer_nodes,layer_relationship, width = "100%", heigh
              solver = "repulsion",
              repulsion = list(gravitationalConstant = 1500))
 
-visSave(draw_sna_layer, file = "/layer.html")
+visSave(draw_sna_layer, file = "../flask/templates/layer.html")
 
 from_layer_id<-all_layer_node
 names(from_layer_id)[2] <- "from_id"
