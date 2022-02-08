@@ -1,12 +1,14 @@
 import numpy as np 
 import pymysql
+import sys
 conn = pymysql.connect(host='140.136.155.121',port=50306,user='root',passwd='IM39project',charset='utf8',db='trans')
 if conn:
     print('success')
     cursor=conn.cursor()
     # SQL_truncate = "TRUNCATE `trans`.`layer`"
     # cursor.execute(SQL_truncate)
-    factorId = 2 #起始點變數
+    # factorId = 2 #起始點變數
+    factorId = int(sys.argv[1])
     times=2
     list=[]
     duplicate = 0
@@ -48,7 +50,7 @@ if conn:
         # SQL = "INSERT INTO `trans`.`layer` (factor_id, near_id, color, level) VALUES (%s, %s, %s, %s, %s)"
         # cursor.executemany(SQL, list)
         conn.commit()# 提交到 SQL
-    np.savetxt("layer.csv", list, delimiter =",",fmt ='%s', encoding='utf-8-sig')
+    np.savetxt("..\\flask\\layer.csv", list, delimiter =",",fmt ='%s', encoding='utf-8-sig')
     cursor.close()
 conn.close()# 關閉 SQL 連線
 

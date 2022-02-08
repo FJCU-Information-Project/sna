@@ -18,14 +18,19 @@ connect = dbConnect(MySQL(), dbname = "trans",username = "root",
 dbListTables(connect)
 dbSendQuery(connect,"SET NAMES BIG5") # 設定資料庫連線編碼
 Sys.getlocale("LC_ALL") #解決中文編碼問題
-
+print("21")
 select_reault <- dbGetQuery(connect ,("select * from trans.result_weight where result_name = '受傷'")) #拿到某結果為條件下的所有資料
+print("23")
 rank_weight <- dbGetQuery(connect, ("select * from trans.result_weight where result_name = '受傷' order by `total` desc")) #將權重由高到低排序
+print("25")
 count <- dbGetQuery(connect ,("select count(result_name) from trans.result_weight where result_name = '受傷'")) #計算資料筆數
+print("27")
 count_rank <- round(count[1,1]*0.01) #計算要顯示幾筆資料(目前設定前1%)
+print("29")
 list <- data.frame(rank=c(1:count_rank), c(rank_weight[1:count_rank,]))
+print("31")
 draw_data <- data.frame(c(list[1,])) #找到想印的名次的資料(目前是印權重第一名)
-
+print("33")
 from_id_name <- dbGetQuery(connect ,("select from_id,`name` from trans.node n,trans.result_weight r where result_name = '受傷' and n.id = r.from_id order by `total` desc"))
 table_from_id_name <- from_id_name[1:count_rank,2] #列出前1%的from_id_name
 to_id_name <- dbGetQuery(connect ,("select to_id,`name` from trans.node n,trans.result_weight r where result_name = '受傷' and n.id = r.to_id order by `total` desc"))
@@ -52,7 +57,7 @@ result_pic <- visNetwork(node, edge, width = "100%", height = "500px")%>%
              solver = "repulsion",
              repulsion = list(gravitationalConstant = 1500))
 
-visSave(result_pic, file = "../flask/templates/result.html",selfcontained = FALSE, background = "white")
+visSave(result_pic, file = "..\\flask\\templates\\result.html",selfcontained = FALSE, background = "white")
 
 result_table<- data.frame(rank=c(list$rank),from_id=c(list$from_id),from_id_name=c(table_from_id_name),to_id=c(list$to_id),to_id_name=c(table_to_id_name),total=c(list$total))
-write.csv(result_table,"../flask/result_table.csv", row.names = FALSE, fileEncoding = "UTF-8")
+write.csv(result_table,"..\\flask\\result_table.csv", row.names = FALSE, fileEncoding = "UTF-8")
