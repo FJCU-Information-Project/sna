@@ -1,7 +1,6 @@
 #ctrl shift + c 多行註解
 
 
-
 library(visNetwork)
 library(RMySQL)
 library(igraph)
