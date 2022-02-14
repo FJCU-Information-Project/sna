@@ -59,7 +59,7 @@ draw_to_id <- draw_data[,7] #找到to_id
 weight <- draw_data[,8] #找到weight
 #draw_from_id_name <- dbGetQuery(connect ,paste("select from_id,`name` from trans.node n,trans.result_weight r where result_name = '",inId1,"' and n.id = r.from_id and n.id = ",inId2," group by from_id"))
 #draw_to_id_name <- dbGetQuery(connect ,paste("select to_id,`name` from trans.node n,trans.result_weight r where result_name = '",inId1,"' and n.id = r.to_id and n.id = ",inId2," group by to_id"))
-node <- data.frame(id=c(draw_from_id,draw_to_id),label = c(draw_data[inId2,3],draw_data[inId2,9]),title = c(draw_data[inId2,6],draw_data[inId2,7]),font.size = 20)
+node <- data.frame(id=c(draw_from_id,draw_to_id),label = c(draw_data[1,3],draw_data[1,9]),title = c(draw_data[inId2,6],draw_data[inId2,7]),font.size = 20)
 edge <- data.frame(from=c(draw_from_id), to=c(draw_to_id), value=c(weight))
 print(node)
 print(edge)
