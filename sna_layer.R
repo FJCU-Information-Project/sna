@@ -66,7 +66,7 @@ get_layer_from_attr<-get_layer_attr
 names(get_layer_from_attr)[2] <- "from_id"
 all_from_layer_node<- merge(x = from_layer_id, y = get_layer_from_attr, by = "from_id", all.x = TRUE)#用id合併得到節點的屬性資訊
 
-#層級分析csv表(欄位:節點from_id,from節點名稱,from節點屬性,from節點英文名,節點to_id,to節點名稱,to節點屬性,to節點英文名,權重,第幾層)
+#層級分析csv表(欄位:第一層id、名稱、權重 和 第二層id、名稱、權重)
 layerTable<- data.frame(first_id = c(all_from_layer_node $from_id)
                         ,first_name = c(all_from_layer_node $name.x)
                         #,first_attr_name = c(all_from_layer_node $attr_name.x)
