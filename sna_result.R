@@ -70,7 +70,7 @@ print(inId2)
 print(node)
 print(edge)
 result_table<- data.frame(rank=c(list$rank),from_id=c(rank_weight$from_id),from_id_name=c(rank_weight$name),to_id=c(rank_weight$to_id),to_id_name=c(rank_weight$to_id_name),total=c(rank_weight$total))
-write.csv(result_table,"E:\\GitHub\\flask\\result_table.csv", row.names = FALSE, fileEncoding = "UTF-8")
+write.csv(result_table,paste0("..",.Platform$file.sep,"Flask",.Platform$file.sep,"result_table.csv"), row.names = FALSE, fileEncoding = "UTF-8")
 print(52)
 result_pic <- visNetwork(node, edge, width = "100%", height = "500px")%>%
   visNodes(size = 30)%>%
@@ -86,6 +86,6 @@ result_pic <- visNetwork(node, edge, width = "100%", height = "500px")%>%
              solver = "repulsion",
              repulsion = list(gravitationalConstant = 1500))
 print("59")
-visSave(result_pic, file = "E:\\GitHub\\flask\\templates\\result.html",selfcontained = FALSE, background = "white")
+visSave(result_pic, file = paste0("..",.Platform$file.sep,"Flask",.Platform$file.sep,"templates",.Platform$file.sep,"result.html"),selfcontained = FALSE, background = "white")
 print("61")
 print("64")
