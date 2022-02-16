@@ -3,11 +3,11 @@
 
 library(visNetwork)
 library(RMySQL)
-library(igraph)
+#library(igraph)
 library(utf8)
 #install.packages("thepackage",lib="H:/Documents/R/win-library/4.1")
 #library(thepackage,lib="H:/Documents/R/win-library/4.1")
-layer_csv<- read.csv(file = 'E:\\GitHub\\flask\\layer.csv', encoding = "UTF-8")
+layer_csv<- read.csv(file = paste0("..",.Platform$file.sep,"Flask",.Platform$file.sep,"layer.csv"), encoding = "UTF-8")
 names(layer_csv)[1] <- "factor_id"#將第一個欄名變更
 
 connect = dbConnect(MySQL(), dbname = "trans",username = "root",
@@ -58,7 +58,7 @@ draw_sna_layer<-visNetwork(layer_nodes,layer_relationship, width = "100%", heigh
              solver = "repulsion",
              repulsion = list(gravitationalConstant = 1500))
 
-visSave(draw_sna_layer, file = "E:\\GitHub\\flask\\templates\\layer.html", selfcontained = FALSE)
+visSave(draw_sna_layer, file = paste0("..",.Platform$file.sep,"Flask",.Platform$file.sep,"templates",.Platform$file.sep,"layer.html"), selfcontained = FALSE)
 
 from_layer_id<-all_layer_node
 names(from_layer_id)[2] <- "from_id"
@@ -79,4 +79,4 @@ layerTable<- data.frame(first_id = c(all_from_layer_node $from_id)
                         #,second_eng_name = c(all_layer_node $enname)
                         #,node_layer=c(all_layer_node $group)
                        )
-write.csv(layerTable,"E:\\GitHub\\flask\\layerTable.csv", row.names = FALSE, fileEncoding = "UTF-8")
+write.csv(layerTable,paste0("..",.Platform$file.sep,"Flask",.Platform$file.sep,"layerTable.csv"), row.names = FALSE, fileEncoding = "UTF-8")
