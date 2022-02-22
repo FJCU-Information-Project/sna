@@ -90,7 +90,7 @@ rankTable<- data.frame(factor = c(newrank$name)
           ,caseNumber=c(newrank$total))
 print(rankTable)
 #排名前十關聯table的csv
-write.csv(rankTable,"../flask/rankTable.csv", row.names = FALSE, fileEncoding = "UTF-8")
+write.csv(rankTable,"../flask/rank_table.csv", row.names = FALSE, fileEncoding = "UTF-8")
 # install.packages("tidyverse")
 # install.packages("jsonlite")
 # library(tidyverse)
