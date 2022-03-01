@@ -32,7 +32,7 @@ all_layer_node <-all_layer_node[(!duplicated(all_layer_node$id)),]#刪除和第�
 layer_nodes<- data.frame(id = c(all_layer_node$id), 
                          group = c(all_layer_node$group), 
                          label = paste(all_layer_node$name), 
-                         title = paste("<p>", all_layer_node$name,"<br>", all_layer_node$attr_name,"<br>",all_layer_node$enname,"</p>"),
+                         #title = paste("<p>", all_layer_node$name,"<br>", all_layer_node$attr_name,"<br>",all_layer_node$enname,"</p>"),
                          font.size = 20,
                          color=c(all_layer_node$color)
                          )
@@ -41,7 +41,7 @@ layer_relationship<- data.frame(from = c(layer_csv$factor_id)
                                 ,to = c(layer_csv$near_id)
                                 ,value = c(layer_csv$weight)
                                 ,font.size = 10
-                                ,label = paste("weight", layer_csv$weight)
+                                #,label = paste("weight", layer_csv$weight)
                                 ,font.color ="brown")
 print(layer_nodes)
 draw_sna_layer<-visNetwork(layer_nodes,layer_relationship, width = "100%", height = "500px")%>%
@@ -56,7 +56,8 @@ draw_sna_layer<-visNetwork(layer_nodes,layer_relationship, width = "100%", heigh
                                   outline:none;'))%>%
   visPhysics(stabilization = FALSE,#動態效果
              solver = "repulsion",
-             repulsion = list(gravitationalConstant = 1500))
+             repulsion = list(gravitationalConstant = 0)
+             )
 
 visSave(draw_sna_layer, file = paste0("..",.Platform$file.sep,"Flask",.Platform$file.sep,"templates",.Platform$file.sep,"layer.html"), selfcontained = FALSE)
 

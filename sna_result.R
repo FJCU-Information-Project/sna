@@ -11,7 +11,7 @@ library(RMySQL)
 
 args <- commandArgs(trailingOnly = TRUE)
 inId1 <- args[1] # CLI input parameter
-inId2 <- args[2]
+#inId2 <- args[2]
 #inId1 <- "未受傷"
 #inId2 <- 2
 
@@ -41,14 +41,15 @@ print("29")
 list <- data.frame(rank=c(1:count_rank), c(rank_weight[1:count_rank,]))
 rank_weight <- rank_weight[1:count_rank,]
 print("31")
-draw_data <- data.frame(c(list[inId2,])) #找到想印的名次的資料(目前是印權重第一名)
+#draw_data <- data.frame(c(list[inId2,])) #找到想印的名次的資料(目前是印權重第一名)
+draw_data <- data.frame(list)
 print("33")
 #from_id_name <- dbGetQuery(connect ,paste("select * from trans.node n,trans.result_weight r where n.id = r.from_id"))
 #table_from_id_name <- from_id_name[1:count_rank,2] #列出前1%的from_id_name
 #to_id_name <- dbGetQuery(connect ,paste("select to_id,`name` from trans.node n,trans.result_weight r where result_name = '",inId1,"' and n.id = r.to_id order by `total` desc"))
 #table_to_id_name <- to_id_name[1:count_rank,2] #列出前1%的to_id_name
 print("38")
-print(inId2)
+#print(inId2)
 print(draw_data)
 #簡寫的#draw_from_id <- draw_data[inId2,6] #找到from_id
 draw_from_id <- draw_data[,6] #找到from_id
@@ -59,21 +60,27 @@ draw_to_id <- draw_data[,7] #找到to_id
 weight <- draw_data[,8] #找到weight
 #draw_from_id_name <- dbGetQuery(connect ,paste("select from_id,`name` from trans.node n,trans.result_weight r where result_name = '",inId1,"' and n.id = r.from_id and n.id = ",inId2," group by from_id"))
 #draw_to_id_name <- dbGetQuery(connect ,paste("select to_id,`name` from trans.node n,trans.result_weight r where result_name = '",inId1,"' and n.id = r.to_id and n.id = ",inId2," group by to_id"))
-node <- data.frame(id=c(draw_from_id,draw_to_id),label = c(draw_data[1,3],draw_data[1,9]),title = c(draw_data[inId2,6],draw_data[inId2,7]),font.size = 20)
+draw_id <- data.frame(id=c(draw_from_id,draw_to_id))
+draw_name <- data.frame(name=c(draw_data[,3],draw_data[,9]))
+draw_node <- data.frame(id=c(draw_id[!duplicated(draw_id$id),]),name=c(draw_name[!duplicated(draw_name$name),]))
+print("65")
+print(draw_node)
+node <- data.frame(id=c(draw_node[,1]),label = c(draw_node[,2]),title = c(draw_node[,1]),font.size = 30)
+print("68")
 edge <- data.frame(from=c(draw_from_id), to=c(draw_to_id), value=c(weight))
 print(node)
 print(edge)
 edge$width <- weight
 print("47")
 print(inId1)
-print(inId2)
+#print(inId2)
 print(node)
 print(edge)
 result_table<- data.frame(rank=c(list$rank),from_id=c(rank_weight$from_id),from_id_name=c(rank_weight$name),to_id=c(rank_weight$to_id),to_id_name=c(rank_weight$to_id_name),total=c(rank_weight$total))
 write.csv(result_table,paste0("..",.Platform$file.sep,"Flask",.Platform$file.sep,"result_table.csv"), row.names = FALSE, fileEncoding = "UTF-8")
 print(52)
 result_pic <- visNetwork(node, edge, width = "100%", height = "500px")%>%
-  visNodes(size = 30)%>%
+  visNodes(size = 10)%>%
   visOptions(highlightNearest = TRUE
               ,selectedBy= "label"
               ,nodesIdSelection = list(enabled = TRUE
