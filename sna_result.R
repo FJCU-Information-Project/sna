@@ -65,9 +65,11 @@ draw_name <- data.frame(name=c(draw_data[,3],draw_data[,9]))
 draw_node <- data.frame(id=c(draw_id[!duplicated(draw_id$id),]),name=c(draw_name[!duplicated(draw_name$name),]))
 print("65")
 print(draw_node)
-node <- data.frame(id=c(draw_node[,1]),label = c(draw_node[,2]),title = c(draw_node[,1]),font.size = 30)
+print(length(draw_node$id))
+node <- data.frame(id=c(draw_node[,1]),label = c(draw_node[,2]),title = c(draw_node[,1]),group = draw_node[,2],font.size = 20)
+print(weight)
 print("68")
-edge <- data.frame(from=c(draw_from_id), to=c(draw_to_id), value=c(weight))
+edge <- data.frame(from=c(draw_from_id), to=c(draw_to_id), value=c(weight), title=paste("Weight:",weight),label=c(weight), font.size=10)
 print(node)
 print(edge)
 edge$width <- weight
@@ -82,7 +84,7 @@ print(52)
 result_pic <- visNetwork(node, edge, width = "100%", height = "500px")%>%
   visNodes(size = 10)%>%
   visOptions(highlightNearest = TRUE
-              ,selectedBy= "label"
+              ,selectedBy= "group"
               ,nodesIdSelection = list(enabled = TRUE
                                         ,style = 'width: 200px; height: 26px;
                                  background: #f8f8f8;

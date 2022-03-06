@@ -20,7 +20,7 @@ dbSendQuery(connect,"SET NAMES BIG5") # 設定資料庫連線編碼
 Sys.getlocale("LC_ALL") #解決中文編碼問題
 
 
-count_1 <- dbGetQuery(connect ,paste("SELECT from_id,SUM(`total`),`name` FROM trans.node n,trans.weight w WHERE n.`id` = ",inId," and w.`from_id` = ",inId,"  group by from_id ORDER BY SUM(`total`) DESC")) #算出每個from_id有幾組關聯
+count_1 <- dbGetQuery(connect ,paste("SELECT from_id,SUM(`total`),`name` FROM trans.node n,trans.weight w WHERE n.`id` = ",inId," and w.`from_id` = ",inId," or w.`to_id` = ",inId,"  group by from_id ORDER BY SUM(`total`) DESC")) #算出每個from_id有幾組關聯
 count_total <- dbGetQuery(connect ,"SELECT SUM(`total`) FROM weight") #算出總共有幾組關聯
 degree_from_id <- dbGetQuery(connect ,"SELECT from_id FROM weight group by from_id")
 data <- data.frame(from_id=c(count_1$from_id),count=c(count_1[2]),count_total=c(count_total))
@@ -30,12 +30,12 @@ rank <- 1:dim(data)[1]
 degree_dataframe <- data.frame(rank=c(rank),from_id=c(count_1$from_id),from_id_name=c(count_1$name),degree=c(degree_ans)) 
 
 
-node_id <- dbGetQuery(connect ,paste("SELECT * FROM weight WHERE `from_id` = ",inId))
-from_id_name <- dbGetQuery(connect ,paste("select from_id,`name` from trans.node n,trans.weight w where `from_id` = ",inId," and  n.id = w.to_id group by from_id"))
-to_id_name <- dbGetQuery(connect ,paste("select to_id,`name` from trans.node n,trans.weight w where `from_id` = ",inId," and  n.id = w.to_id group by to_id"))
+node_id <- dbGetQuery(connect ,paste("SELECT * FROM weight WHERE `from_id` = ",inId, "or `to_id` = ",inId))
+from_id_name <- dbGetQuery(connect ,paste("select from_id,`name` from trans.node n,trans.weight w where `from_id` = ",inId, "or `to_id` = ",inId," and  n.id = w.to_id group by from_id"))
+to_id_name <- dbGetQuery(connect ,paste("select to_id,`name` from trans.node n,trans.weight w where `from_id` = ",inId,"or `to_id` = ",inId," and  n.id = w.to_id group by to_id"))
 node_name <- data.frame(id=c(node_id[1,1],node_id$to_id),name=c(from_id_name$name,to_id_name$name))
 node <- data.frame(id=c(node_id[1,1],node_id$to_id),label = paste(node_name$id),title = paste(node_name$id),font.size = 20)
-rel_id <- dbGetQuery(connect ,paste("SELECT * FROM weight WHERE `from_id` = ",inId))
+rel_id <- dbGetQuery(connect ,paste("SELECT * FROM weight WHERE `from_id` = ",inId,"or `to_id` = ",inId))
 edge <- data.frame(from=c(rel_id$from_id), to=c(rel_id$to_id), value=c(rel_id$total))
 edge$width <- rel_id$total
 

@@ -24,13 +24,31 @@ Sys.getlocale(category = "LC_ALL") # 查詢系統編碼環境
 args <- commandArgs(trailingOnly = TRUE)
 id <- args[1] # CLI input parameter
 node8<- dbGetQuery(connect ,paste("select * from `node` where `id`=", id))
-relationship8<- dbGetQuery(connect ,paste("select * from `relationship` where `from_id`= ", id))
+#relationship8<- dbGetQuery(connect ,paste("select * from `relationship` where `from_id`= ", id))
+relationship8<- dbGetQuery(connect ,paste("select * from `relationship` where `from_id`= ",id))
+relationship_toid<- dbGetQuery(connect ,paste("select * from `relationship` where `to_id`=",id))
+names(relationship_toid)[3] <- "to_id"
+names(relationship_toid)[4] <- "from_id"
 #選擇from_id
-weight10<- dbGetQuery(connect ,paste("select * from `weight` where `from_id`= ", id, " order by `total` desc"))
+#weight10<- dbGetQuery(connect ,paste("select * from `weight` where `from_id`= ", id, " order by `total` desc"))
+weight10<- dbGetQuery(connect ,paste("select * from `weight` where `from_id`= ", id,"order by `total` desc"))
+weight_toid<- dbGetQuery(connect ,paste("select * from `weight` where `to_id`=",id,"order by `total` desc"))
+names(weight_toid)[1] <- "to_id"
+names(weight_toid)[2] <- "from_id"
+weight10<-rbind(weight10,weight_toid)
+weight10<-weight10[order(weight10$total,decreasing = T),]
+
 count_toid<-(length(weight10$to_id))
 count_toid<-ceiling(count_toid*0.1)
 weightfor10<-weight10[1:count_toid,]
 bindnode<-weightfor10
+rankbindnode<-bindnode
+rankbindnode$rank <- 1:count_toid
+#rankbindnode$rank[rank(rankbindnode$total,decreasing=TRUE,method = c("a"))] <- 1:nrow(rankbindnode)
+# rank函数 rank部分仍須處理
+rankbindnode[,rank:=frank(-rank,ties.method = "min"),by=total]
+# 根total將rank做遞減排序，若rank值相同，則給予最小排序值
+
 bn<-data.frame(id =bindnode[1,1])
 bb<-data.frame(id = (bindnode$to_id))
 bb<-rbind(bn,bb)
@@ -41,22 +59,37 @@ names(a)[2] <- "attr_name"
 getTitle<- merge(x = t3, y = a, by = "attribute", all.x = TRUE)#left join
 allNode<- getTitle
 all_node<- merge(x = bb, y = allNode, by = "id", all.x = TRUE)#left join
+all_node <- all_node[!duplicated(all_node),]
+#r<- dbGetQuery(connect ,paste("select * from `relationship` where `to_id`=",id))
+#r[!duplicated(r[,c(3,4)]),]
+
+centernode=data.frame(total =3000)
+orderothernode<-bindnode[order(bindnode$to_id),]
+othernode=data.frame(total=orderothernode$total)
+nodevalue<-rbind(centernode,othernode)
+
+getnodetable<-t3
+names(getnodetable)[1] <- "to_id"
+getweightgroup<- merge(x = getnodetable, y = orderothernode, by = "to_id", all.y = TRUE)#left join
+
 total_nodes<- data.frame(id = c(all_node$id), group = c(all_node$attr_name), 
                          label = paste(all_node$name), 
-                         title = paste("<p>", all_node$attr_name,"<br>",all_node$enname,"</p>"),
-                         font.size = 20)
+                         title = paste("<p>", all_node$attr_name,all_node$enname,"</p>"),
+                         font.size = 15,value = c(nodevalue$total))
 weightRelationship<- data.frame(from = c(bindnode$from_id)
                                 ,to = c(bindnode$to_id)
                                 ,value = c(bindnode$total)
                                 ,font.size = 10
                                 #,label = paste("權重", bindnode$total)
                                 # Why Error?
+                                ,title=paste("Weight :",bindnode$total,"Rank : ",1:count_toid)
+                                ,group=c(getweightgroup$name)
                                 ,font.color ="brown")
 print(total_nodes)
 snaRank10<-visNetwork(total_nodes,weightRelationship, width = "100%", height = "500px")%>%
   visNodes(size = 30)%>%
   visOptions(highlightNearest = TRUE
-            , selectedBy= "label"
+            , selectedBy= "group"
             ,nodesIdSelection = list(enabled = TRUE
                         ,style = 'width: 200px; height: 26px;
                                   background: #f8f8f8;
