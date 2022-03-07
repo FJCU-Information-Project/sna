@@ -40,7 +40,15 @@ count_rank <- round(count*0.01) #計算要顯示幾筆資料(目前設定前1%)
 print("29")
 list <- data.frame(rank=c(1:count_rank), c(rank_weight[1:count_rank,]))
 rank_weight <- rank_weight[1:count_rank,]
+i <- 2
+while (i <= count_rank){  
+  if (list$total[i]==list$total[i-1]){
+    list$rank[i] <- list$rank[i-1]
+  }
+  i <- i + 1
+}
 print("31")
+print(list)
 #draw_data <- data.frame(c(list[inId2,])) #找到想印的名次的資料(目前是印權重第一名)
 draw_data <- data.frame(list)
 print("33")
@@ -69,7 +77,7 @@ print(length(draw_node$id))
 node <- data.frame(id=c(draw_node[,1]),label = c(draw_node[,2]),title = c(draw_node[,1]),group = draw_node[,2],font.size = 20)
 print(weight)
 print("68")
-edge <- data.frame(from=c(draw_from_id), to=c(draw_to_id), value=c(weight), title=paste("Weight:",weight),label=c(weight), font.size=10)
+edge <- data.frame(from=c(draw_from_id), to=c(draw_to_id), value=c(weight), title=paste("Weight:",weight,"Rank:",list$rank),label=c(weight), font.size=10)
 print(node)
 print(edge)
 edge$width <- weight
@@ -80,6 +88,7 @@ print(node)
 print(edge)
 result_table<- data.frame(rank=c(list$rank),from_id=c(rank_weight$from_id),from_id_name=c(rank_weight$name),to_id=c(rank_weight$to_id),to_id_name=c(rank_weight$to_id_name),total=c(rank_weight$total))
 write.csv(result_table,paste0("..",.Platform$file.sep,"Flask",.Platform$file.sep,"result_table.csv"), row.names = FALSE, fileEncoding = "UTF-8")
+print(result_table)
 print(52)
 result_pic <- visNetwork(node, edge, width = "100%", height = "500px")%>%
   visNodes(size = 10)%>%

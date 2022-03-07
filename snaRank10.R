@@ -44,10 +44,13 @@ weightfor10<-weight10[1:count_toid,]
 bindnode<-weightfor10
 rankbindnode<-bindnode
 rankbindnode$rank <- 1:count_toid
-#rankbindnode$rank[rank(rankbindnode$total,decreasing=TRUE,method = c("a"))] <- 1:nrow(rankbindnode)
-# rank函数 rank部分仍須處理
-rankbindnode[,rank:=frank(-rank,ties.method = "min"),by=total]
-# 根total將rank做遞減排序，若rank值相同，則給予最小排序值
+c <- 2
+while (c <= count_toid){
+  if (rankbindnode$total[c]==rankbindnode$total[c-1]){
+    rankbindnode$rank[c] <- rankbindnode$rank[c-1]
+  }
+  c <- c+1
+}
 
 bn<-data.frame(id =bindnode[1,1])
 bb<-data.frame(id = (bindnode$to_id))
@@ -82,7 +85,7 @@ weightRelationship<- data.frame(from = c(bindnode$from_id)
                                 ,font.size = 10
                                 #,label = paste("權重", bindnode$total)
                                 # Why Error?
-                                ,title=paste("Weight :",bindnode$total,"Rank : ",1:count_toid)
+                                ,title=paste("Weight :",bindnode$total,"Rank : ",rankbindnode$rank)
                                 ,group=c(getweightgroup$name)
                                 ,font.color ="brown")
 print(total_nodes)

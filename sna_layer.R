@@ -4,8 +4,8 @@
 library(visNetwork)
 library(RMySQL)
 library(utf8)
-layer_csv<- read.csv(file = paste0("..",.Platform$file.sep,"Flask",.Platform$file.sep,"layer.csv"), encoding = "UTF-8")
-#layer_csv<- read.csv(file = "E://GitHub/Flask/layer.csv", encoding = "UTF-8")
+#layer_csv<- read.csv(file = paste0("..",.Platform$file.sep,"Flask",.Platform$file.sep,"layer.csv"), encoding = "UTF-8")
+layer_csv<- read.csv(file = "E://GitHub/Flask/layer.csv", encoding = "UTF-8")
 names(layer_csv)[1] <- "factor_id"#將第一個欄名變更
 
 connect = dbConnect(MySQL(), dbname = "trans",username = "root",
@@ -25,23 +25,34 @@ all_layer_node<- merge(x = layer_to_id, y = get_layer_attr, by = "id", all.x = T
 #all_layer_node<-unique(all_layer_node)#刪除重複的第二層節點
 #all_layer_node<-all_layer_node[order(all_layer_node$id,all_layer_node$group),]#將層級做降冪排列
 all_layer_node <-all_layer_node[(!duplicated(all_layer_node$id)),]#刪除和第一層重複的第二層節點
+first_layer_weight<-all_layer_node[all_layer_node$group == "第1層", ]
+count_rel<-(length(layer_csv$near_id))
+layer_csv$rank <- 1:count_rel
+i <- 2
+while (i <= count_rel){
+  if (layer_csv$weight[i]==layer_csv$weight[i-1]){
+    layer_csv$rank[i] <- layer_csv$rank[i-1]
+  }
+  i <- i+1
+}
 
 #用於畫sna圖的節點
 layer_nodes<- data.frame(id = c(all_layer_node$id), 
                          group = c(all_layer_node$group), 
                          label = paste(all_layer_node$name), 
                          #title = paste("<p>", all_layer_node$name,"<br>", all_layer_node$attr_name,"<br>",all_layer_node$enname,"</p>"),
-                         font.size = 20,
+                         font.size = 10,
                          color=c(all_layer_node$color)
+                         #value=c(first_layer_weight$total)
                          )
 #用於畫sna圖的關聯
 layer_relationship<- data.frame(from = c(layer_csv$factor_id)
                                 ,to = c(layer_csv$near_id)
                                 ,value = c(layer_csv$weight)
                                 ,font.size = 10
-                                #,label = paste("weight", layer_csv$weight)
+                                ,title = paste("weight", layer_csv$weight,"Rank : ",1:layer_csv$rank)
                                 ,font.color ="brown")
-print(layer_nodes)
+
 draw_sna_layer<-visNetwork(layer_nodes,layer_relationship, width = "100%", height = "500px")%>%
   visNodes(size = 30)%>%
   visOptions(highlightNearest = TRUE
@@ -54,7 +65,7 @@ draw_sna_layer<-visNetwork(layer_nodes,layer_relationship, width = "100%", heigh
                                   outline:none;'))%>%
   visPhysics(stabilization = FALSE,#動態效果
              solver = "repulsion",
-             repulsion = list(gravitationalConstant = 0)
+             repulsion = list(gravitationalConstant = 150)
              )
 
 visSave(draw_sna_layer, file = paste0("..",.Platform$file.sep,"Flask",.Platform$file.sep,"templates",.Platform$file.sep,"layer.html"), selfcontained = FALSE)
