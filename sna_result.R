@@ -74,7 +74,7 @@ draw_node <- data.frame(id=c(draw_id[!duplicated(draw_id$id),]),name=c(draw_name
 print("65")
 print(draw_node)
 print(length(draw_node$id))
-node <- data.frame(id=c(draw_node[,1]),label = c(draw_node[,2]),title = c(draw_node[,1]),group = draw_node[,2],font.size = 20)
+node <- data.frame(id=c(draw_node[,1]),label = c(draw_node[,2]),title = c(draw_node[,2]),group = draw_node[,2],font.size = 20)
 print(weight)
 print("68")
 edge <- data.frame(from=c(draw_from_id), to=c(draw_to_id), value=c(weight), title=paste("Weight:",weight,"Rank:",list$rank),label=c(weight), font.size=10)
