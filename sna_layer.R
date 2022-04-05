@@ -8,24 +8,24 @@ library(utf8)
 layer_csv<- read.csv(file = "E://GitHub/Flask/layer.csv", encoding = "UTF-8")
 names(layer_csv)[1] <- "factor_id"#將第一個欄名變更
 
-connect = dbConnect(MySQL(), dbname = "trans",username = "root",
+connect = dbConnect(MySQL(), dbname = "trans0528",username = "root",
                     password = "IM39project",host = "140.136.155.121",port=50306,DBMSencoding="UTF8")
 dbListTables(connect)
 dbSendQuery(connect,"SET NAMES BIG5") # 設定資料庫連線編碼
 Sys.getlocale(category = "LC_ALL") # 查詢系統編碼環境
 layer_to_id<-data.frame(from_id = c(layer_csv$factor_id),id = c(layer_csv$near_id),group=c(layer_csv$level),color=c(layer_csv$color),total=c(layer_csv$weight))
-
 node_layer<- dbGetQuery(connect ,"select * from `node`")
 attr_layer<- dbGetQuery(connect ,"select * from `attribute`")
-names(attr_layer)[1] <- "attribute"
-names(attr_layer)[2] <- "attr_name"
+names(attr_layer)[2] <- "attribute"
+names(attr_layer)[3] <- "attr_name"
 get_layer_attr<- merge(x = node_layer, y = attr_layer, by = "attribute", all.x = TRUE)#將屬性和節點表格合併
 all_layer_node<- merge(x = layer_to_id, y = get_layer_attr, by = "id", all.x = TRUE)#用id合併得到節點的屬性資訊
-
 #all_layer_node<-unique(all_layer_node)#刪除重複的第二層節點
 #all_layer_node<-all_layer_node[order(all_layer_node$id,all_layer_node$group),]#將層級做降冪排列
+print(all_layer_node)
 all_layer_node <-all_layer_node[(!duplicated(all_layer_node$id)),]#刪除和第一層重複的第二層節點
-first_layer_weight<-all_layer_node[all_layer_node$group == "第1層", ]
+##first_layer_weight<-all_layer_node[all_layer_node$group == "第1層", ]
+
 count_rel<-(length(layer_csv$near_id))
 layer_csv$rank <- 1:count_rel
 i <- 2
@@ -35,7 +35,6 @@ while (i <= count_rel){
   }
   i <- i+1
 }
-
 #用於畫sna圖的節點
 layer_nodes<- data.frame(id = c(all_layer_node$id), 
                          group = c(all_layer_node$group), 
@@ -50,9 +49,8 @@ layer_relationship<- data.frame(from = c(layer_csv$factor_id)
                                 ,to = c(layer_csv$near_id)
                                 ,value = c(layer_csv$weight)
                                 ,font.size = 10
-                                ,title = paste("weight", layer_csv$weight,"Rank : ",1:layer_csv$rank)
+                                ,title = paste("weight", layer_csv$weight,"Rank : ",layer_csv$rank)
                                 ,font.color ="brown")
-
 draw_sna_layer<-visNetwork(layer_nodes,layer_relationship, width = "100%", height = "500px")%>%
   visNodes(size = 30)%>%
   visOptions(highlightNearest = TRUE
@@ -72,10 +70,13 @@ visSave(draw_sna_layer, file = paste0("..",.Platform$file.sep,"Flask",.Platform$
 
 from_layer_id<-all_layer_node
 names(from_layer_id)[2] <- "from_id"
-get_layer_from_attr<-get_layer_attr
-names(get_layer_from_attr)[2] <- "from_id"
-all_from_layer_node<- merge(x = from_layer_id, y = get_layer_from_attr, by = "from_id", all.x = TRUE)#用id合併得到節點的屬性資訊
+# print(from_layer_id)
 
+get_layer_from_attr<-get_layer_attr
+names(get_layer_from_attr)[3] <- "from_id"
+# print(get_layer_from_attr)
+
+all_from_layer_node<- merge(x = from_layer_id, y = get_layer_from_attr, by = "from_id", all.x = TRUE)#用id合併得到節點的屬性資訊
 #層級分析csv表(欄位:第一層id、名稱、權重 和 第二層id、名稱、權重)
 layerTable<- data.frame(first_id = c(all_from_layer_node $from_id)
                         ,first_name = c(all_from_layer_node $name.y)
@@ -89,4 +90,6 @@ layerTable<- data.frame(first_id = c(all_from_layer_node $from_id)
                         #,second_eng_name = c(all_layer_node $enname)
                         #,node_layer=c(all_layer_node $group)
                        )
-write.csv(layerTable,paste0("..",.Platform$file.sep,"Flask",.Platform$file.sep,"layer_table.csv"), row.names = FALSE, fileEncoding = "UTF-8")
+print(layer_table)
+# write.csv(layerTable,paste0("..",.Platform$file.sep,"Flask",.Platform$file.sep,"layer_table.csv"), row.names = FALSE, fileEncoding = "UTF-8")
+write.csv(rankTable,"../flask/layer_table.csv", row.names = FALSE, fileEncoding = "UTF-8")

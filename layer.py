@@ -15,6 +15,7 @@ if conn:
     # cursor.execute(SQL_truncate)
     # factorId = 2 #起始點變數
     factorId = int(sys.argv[1])
+    #print(factorId)
     times = 2
     list = []
     list1=[]
@@ -24,7 +25,7 @@ if conn:
     list.append(layerColumnName)
     #sql = "SELECT `from_id`, `to_id`,`total` FROM `trans`.`weight` where `from_id`=%d" % (
         #factorId)  # 找和起始點相關的第一層節點
-    sql = "SELECT `from_id`, `to_id`,`total` FROM `trans`.`weight` where `from_id`=%d or `to_id`=%d"%(factorId,factorId)
+    sql = "SELECT `from_id`, `to_id`,`total` FROM `trans0528`.`weight` where `from_id`=%d or `to_id`=%d"%(factorId,factorId)
     cursor.execute(sql)  # 執行 SQL
     layer1Result = cursor.fetchall()  # 取出全部資料
     #layer1Result = None
@@ -59,7 +60,7 @@ if conn:
         for i in range(len(from1_id)):
             layer1_id = from1_id[i]
             #print(from1_id)
-            sql = "SELECT `from_id`, `to_id`,`total` FROM `trans`.`weight` where `from_id`=%d" % (
+            sql = "SELECT `from_id`, `to_id`,`total` FROM `trans0528`.`weight` where `from_id`=%d" % (
                 layer1_id)
             cursor.execute(sql)  # 執行 SQL
             layer2Result = (cursor.fetchall())  # 取出全部資料
@@ -80,7 +81,7 @@ if conn:
                     continue
                 data2 = DataFrame(list2) #將list2(第二層)轉換成dataframe
                 data2.columns=['from_id','to_id','weight','color','layer']#加入dataframe欄名
-                    #print(data)
+                #print(data2)
         data2=data2.sort_values(by=['weight'], ascending=False)#依照權重大小排序(高到低)
         layer2nodelen=round(len(list2)*0.03)#取權重前3%作為第一層節點
         data2=data2[0:layer2nodelen]#列出權重為前3%的所有肇事因素節點
@@ -92,5 +93,6 @@ if conn:
                #delimiter=",", fmt='%s', encoding='utf-8-sig')
     np.savetxt(".."+os.sep+"Flask"+os.sep+"layer.csv", result,
                delimiter=",", fmt='%s', encoding='utf-8-sig')
+    #print(1)
     cursor.close()
 conn.close()  # 關閉 SQL 連線

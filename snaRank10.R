@@ -15,7 +15,7 @@ library(utf8)
 
 print("Hello After library")
 
-connect = dbConnect(MySQL(), dbname = "trans",username = "root",
+connect = dbConnect(MySQL(), dbname = "trans0528",username = "root",
                     password = "IM39project",host = "140.136.155.121",port=50306,DBMSencoding="UTF8")
 dbListTables(connect)
 dbSendQuery(connect,"SET NAMES BIG5") # 設定資料庫連線編碼
@@ -25,19 +25,18 @@ args <- commandArgs(trailingOnly = TRUE)
 id <- args[1] # CLI input parameter
 node8<- dbGetQuery(connect ,paste("select * from `node` where `id`=", id))
 #relationship8<- dbGetQuery(connect ,paste("select * from `relationship` where `from_id`= ", id))
-relationship8<- dbGetQuery(connect ,paste("select * from `relationship` where `from_id`= ",id))
-relationship_toid<- dbGetQuery(connect ,paste("select * from `relationship` where `to_id`=",id))
+relationship8<- dbGetQuery(connect ,paste("select * from `weight` where `from_id`= ",id))
+relationship_toid<- dbGetQuery(connect ,paste("select * from `weight` where `to_id`=",id))
 names(relationship_toid)[3] <- "to_id"
 names(relationship_toid)[4] <- "from_id"
 #選擇from_id
 #weight10<- dbGetQuery(connect ,paste("select * from `weight` where `from_id`= ", id, " order by `total` desc"))
 weight10<- dbGetQuery(connect ,paste("select * from `weight` where `from_id`= ", id,"order by `total` desc"))
 weight_toid<- dbGetQuery(connect ,paste("select * from `weight` where `to_id`=",id,"order by `total` desc"))
-names(weight_toid)[1] <- "to_id"
-names(weight_toid)[2] <- "from_id"
+names(weight_toid)[2] <- "to_id"
+names(weight_toid)[3] <- "from_id"
 weight10<-rbind(weight10,weight_toid)
 weight10<-weight10[order(weight10$total,decreasing = T),]
-
 count_toid<-(length(weight10$to_id))
 count_toid<-ceiling(count_toid*0.1)
 weightfor10<-weight10[1:count_toid,]
@@ -51,14 +50,13 @@ while (c <= count_toid){
   }
   c <- c+1
 }
-
-bn<-data.frame(id =bindnode[1,1])
+bn<-data.frame(id =bindnode[1,2])
 bb<-data.frame(id = (bindnode$to_id))
 bb<-rbind(bn,bb)
 t3<- dbGetQuery(connect ,"select * from `node`")
 a<- dbGetQuery(connect ,"select * from `attribute`")
-names(a)[1] <- "attribute"
-names(a)[2] <- "attr_name"
+names(a)[2] <- "attribute"
+names(a)[3] <- "attr_name"
 getTitle<- merge(x = t3, y = a, by = "attribute", all.x = TRUE)#left join
 allNode<- getTitle
 all_node<- merge(x = bb, y = allNode, by = "id", all.x = TRUE)#left join
@@ -88,7 +86,6 @@ weightRelationship<- data.frame(from = c(bindnode$from_id)
                                 ,title=paste("Weight :",bindnode$total,"Rank : ",rankbindnode$rank)
                                 ,group=c(getweightgroup$name)
                                 ,font.color ="brown")
-print(total_nodes)
 snaRank10<-visNetwork(total_nodes,weightRelationship, width = "100%", height = "500px")%>%
   visNodes(size = 30)%>%
   visOptions(highlightNearest = TRUE
@@ -104,7 +101,6 @@ snaRank10<-visNetwork(total_nodes,weightRelationship, width = "100%", height = "
              repulsion = list(gravitationalConstant = 1500))
 
 visSave(snaRank10, file = "../flask/templates/snaRank10.html",selfcontained = FALSE, background = "white")
-
 #顯示排名前十關聯名字case次數(權重)與排名數
 bindnode$Rank<-floor(rank(-bindnode$total))
 rank<-bindnode[order(floor(rank(bindnode$Rank))),]
@@ -114,7 +110,8 @@ rank<-bindnode[order(floor(rank(bindnode$Rank))),]
 # Sys.setlocale("LC_ALL","Chinese") #解決中文編碼問題
 ranknode<- dbGetQuery(connect ,"select * from `node`")
 rankatr<- dbGetQuery(connect ,"select * from `attribute`")
-names(ranknode)[1] <- "to_id"
+
+names(ranknode)[3] <- "to_id"
 ranknodename<- merge(x = rank, y = ranknode, by = "to_id", all.x = TRUE)#left join
 library(dplyr)#使用arrange函數
 newrank<-arrange(ranknodename, Rank) # 按 Rank 列進行升序排列
@@ -123,8 +120,7 @@ newrank<-arrange(ranknodename, Rank) # 按 Rank 列進行升序排列
 #           ,Case總數=c(newrank$total))
 rankTable<- data.frame(factor = c(newrank$name)
           ,factorRank = c(newrank$Rank)
-          ,caseNumber=c(newrank$total))
-print(rankTable)
+          ,caseWeight=c(newrank$total))
 #排名前十關聯table的csv
 write.csv(rankTable,"../flask/rank_table.csv", row.names = FALSE, fileEncoding = "UTF-8")
 # install.packages("tidyverse")
