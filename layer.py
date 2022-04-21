@@ -14,18 +14,24 @@ if conn:
     # SQL_truncate = "TRUNCATE `trans`.`layer`"
     # cursor.execute(SQL_truncate)
     # factorId = 2 #起始點變數
-    factorId = int(sys.argv[1])
+    factorId = int(sys.argv[1])#起使節點id
+    #userId = str(sys.argv[2])#user_id
+    userId = 5678
+    datasetId = 1
+    #datasetId = int(sys.argv[3])#dataset_id
     #print(factorId)
     times = 2
     list = []
     list1=[]
     list2=[]
+    list3=[]
     duplicate = 0
     layerColumnName = ('factor_id', 'near_id', 'weight', 'color', 'level')
     list.append(layerColumnName)
     #sql = "SELECT `from_id`, `to_id`,`total` FROM `trans`.`weight` where `from_id`=%d" % (
         #factorId)  # 找和起始點相關的第一層節點
-    sql = "SELECT `from_id`, `to_id`,`total` FROM `trans0528`.`weight` where `from_id`=%d or `to_id`=%d"%(factorId,factorId)
+    # sql = "SELECT `from_id`, `to_id`,`total` FROM `trans0528`.`weight` where `from_id`=%d or `to_id`=%d"%(factorId,factorId)
+    sql = "SELECT `from_id`, `to_id`,`total` FROM `%s`.`weight` where (`from_id`=%d or `to_id`=%d) and `dataset`=%d"%(userId,factorId,factorId,datasetId)
     cursor.execute(sql)  # 執行 SQL
     layer1Result = cursor.fetchall()  # 取出全部資料
     #layer1Result = None
@@ -86,13 +92,35 @@ if conn:
         layer2nodelen=round(len(list2)*0.03)#取權重前3%作為第一層節點
         data2=data2[0:layer2nodelen]#列出權重為前3%的所有肇事因素節點
         frames = [firstdata, data, data2]
+        # print(frames)
         result = pd.concat(frames)
         #print(result)
+        #以下將第一層和第二層的節點作合併 產出table
+        data3=data2
+        data3.columns=['to_id','to2_id','weight','color','layer']#加入dataframe欄名
+        data4=data
+        layertable = pd.merge(data4,data3,on='to_id')
+        # layertable = columns=['from_id','to1_id','weight1','color1','layer1','to2_id','weight2','color2','layer2']#加入dataframe欄名
+        ### 以下為測試
+        #print(layertable)
+        layerTableColumnName = ('from_id','to1_id','weight1','color1','layer1','to2_id','weight2','color2','layer2')
+        list3.append(layerTableColumnName)
+        #list3.append(layertable)
+        layertabledf = DataFrame(list3)
+        layertable.columns=['from_id','to1_id','weight1','color1','layer1','to2_id','weight2','color2','layer2']#加入dataframe欄名
+        layertabledf.columns=['from_id','to1_id','weight1','color1','layer1','to2_id','weight2','color2','layer2']#加入dataframe欄名
+        #print(layertabledf)
+        # result2 = [layertabledf,layertable]
+        #print(layertabledf)
+        layertable=layertabledf.append(layertable)
+        print(layertable)
         conn.commit()  # 提交到 SQL
     #np.savetxt(".."+os.sep+"Flask"+os.sep+"layer.csv", list,
                #delimiter=",", fmt='%s', encoding='utf-8-sig')
     np.savetxt(".."+os.sep+"Flask"+os.sep+"layer.csv", result,
-               delimiter=",", fmt='%s', encoding='utf-8-sig')
+               delimiter=",", fmt='%s', encoding='utf-8-sig')#用於R的表
     #print(1)
+    np.savetxt(".."+os.sep+"Flask"+os.sep+"layertable.csv", layertable,
+               delimiter=",", fmt='%s', encoding='utf-8-sig')#顯示於網頁的層級表
     cursor.close()
 conn.close()  # 關閉 SQL 連線

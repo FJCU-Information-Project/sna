@@ -22,7 +22,7 @@ get_layer_attr<- merge(x = node_layer, y = attr_layer, by = "attribute", all.x =
 all_layer_node<- merge(x = layer_to_id, y = get_layer_attr, by = "id", all.x = TRUE)#用id合併得到節點的屬性資訊
 #all_layer_node<-unique(all_layer_node)#刪除重複的第二層節點
 #all_layer_node<-all_layer_node[order(all_layer_node$id,all_layer_node$group),]#將層級做降冪排列
-print(all_layer_node)
+#print(all_layer_node)
 all_layer_node <-all_layer_node[(!duplicated(all_layer_node$id)),]#刪除和第一層重複的第二層節點
 ##first_layer_weight<-all_layer_node[all_layer_node$group == "第1層", ]
 
@@ -90,6 +90,7 @@ layerTable<- data.frame(first_id = c(all_from_layer_node $from_id)
                         #,second_eng_name = c(all_layer_node $enname)
                         #,node_layer=c(all_layer_node $group)
                        )
-print(layer_table)
+print(layerTable)
 # write.csv(layerTable,paste0("..",.Platform$file.sep,"Flask",.Platform$file.sep,"layer_table.csv"), row.names = FALSE, fileEncoding = "UTF-8")
-write.csv(rankTable,"../flask/layer_table.csv", row.names = FALSE, fileEncoding = "UTF-8")
+#write.csv(layertable,"../flask/Rlayertable.csv", row.names = FALSE, fileEncoding = "UTF-8")
+print("success")
