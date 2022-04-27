@@ -6,12 +6,14 @@ library(RMySQL)
 library(utf8)
 #layer_csv<- read.csv(file = paste0("..",.Platform$file.sep,"Flask",.Platform$file.sep,"layer.csv"), encoding = "UTF-8")
 layer_csv<- read.csv(file = "E://GitHub/Flask/layer.csv", encoding = "UTF-8")
+layertable_csv<- read.csv(file = "E://GitHub/Flask/layertable.csv", encoding = "UTF-8")
 names(layer_csv)[1] <- "factor_id"#將第一個欄名變更
+#print(layertable_csv)
 
 connect = dbConnect(MySQL(), dbname = "trans0528",username = "root",
                     password = "IM39project",host = "140.136.155.121",port=50306,DBMSencoding="UTF8")
 dbListTables(connect)
-dbSendQuery(connect,"SET NAMES BIG5") # 設定資料庫連線編碼
+dbSendQuery(connect,"SET NAMES utf8") # 設定資料庫連線編碼
 Sys.getlocale(category = "LC_ALL") # 查詢系統編碼環境
 layer_to_id<-data.frame(from_id = c(layer_csv$factor_id),id = c(layer_csv$near_id),group=c(layer_csv$level),color=c(layer_csv$color),total=c(layer_csv$weight))
 node_layer<- dbGetQuery(connect ,"select * from `node`")
@@ -70,13 +72,40 @@ visSave(draw_sna_layer, file = paste0("..",.Platform$file.sep,"Flask",.Platform$
 
 from_layer_id<-all_layer_node
 names(from_layer_id)[2] <- "from_id"
-# print(from_layer_id)
+#print(from_layer_id)
 
+#藉由from_id找尋節點關聯資料庫的名稱start
 get_layer_from_attr<-get_layer_attr
 names(get_layer_from_attr)[3] <- "from_id"
-# print(get_layer_from_attr)
+nodename<- data.frame(from_id = c(get_layer_from_attr $from_id),
+                      node_name=c(get_layer_from_attr $name),
+                      attr_name=c(get_layer_from_attr $attr_name)
+                     )
+#藉由from_id找尋節點關聯資料庫的名稱end
 
 all_from_layer_node<- merge(x = from_layer_id, y = get_layer_from_attr, by = "from_id", all.x = TRUE)#用id合併得到節點的屬性資訊
+##新表merge by from_id
+names(layertable_csv)[1]<-"from_id"
+# print(layertable_csv)
+layer1_node_name<- merge(x = layertable_csv, y = nodename, by = "from_id", all.x = TRUE)#用id合併得到節點的屬性資訊
+names(layer1_node_name)[1]<-"first_id"
+names(layer1_node_name)[10]<-"first_node_name"
+names(layer1_node_name)[11]<-"first_attr_name"
+names(layer1_node_name)[2]<-"from_id"
+layer2_node_name<- merge(x = layer1_node_name, y = nodename, by = "from_id", all.x = TRUE)#用id合併得到節點的屬性資訊
+names(layer2_node_name)[1]<-"second_id"
+names(layer2_node_name)[12]<-"second_node_name"
+names(layer2_node_name)[13]<-"second_attr_name"
+names(layer2_node_name)[6]<-"from_id"
+layer3_node_name<- merge(x = layer2_node_name, y = nodename, by = "from_id", all.x = TRUE)#用id合併得到節點的屬性資訊
+names(layer3_node_name)[1]<-"third_id"
+names(layer3_node_name)[14]<-"third_node_name"
+names(layer3_node_name)[15]<-"third_attr_name"
+print(11)
+layer3_node_name$sum_weight <- layer3_node_name$weight1 + layer3_node_name$weight2
+print(layer3_node_name)
+layerTableWeb<-layer3_node_name[order(layer3_node_name$sum_weight, decreasing = TRUE), ]
+print(layerTableWeb)
 #層級分析csv表(欄位:第一層id、名稱、權重 和 第二層id、名稱、權重)
 layerTable<- data.frame(first_id = c(all_from_layer_node $from_id)
                         ,first_name = c(all_from_layer_node $name.y)
@@ -90,7 +119,10 @@ layerTable<- data.frame(first_id = c(all_from_layer_node $from_id)
                         #,second_eng_name = c(all_layer_node $enname)
                         #,node_layer=c(all_layer_node $group)
                        )
-print(layerTable)
+#print(layerTable)
+#write.csv(layerTable,"../flask/layerHtmlTable.csv", row.names = FALSE, fileEncoding = "UTF-8")
+write.csv(layerTableWeb,"../flask/layerHtmlTable.csv", row.names = FALSE, fileEncoding = "UTF-8")
+
 # write.csv(layerTable,paste0("..",.Platform$file.sep,"Flask",.Platform$file.sep,"layer_table.csv"), row.names = FALSE, fileEncoding = "UTF-8")
 #write.csv(layertable,"../flask/Rlayertable.csv", row.names = FALSE, fileEncoding = "UTF-8")
 print("success")

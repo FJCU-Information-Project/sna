@@ -1,7 +1,6 @@
 #ctrl shift + c 多行註解
 
 print("Hello Before library")
-
 library(visNetwork)
 #library(sqldf)
 #library(RODBC)
@@ -22,7 +21,7 @@ print(rankDatasetId)
 connect = dbConnect(MySQL(), dbname = rankUserId,username = "root",
                     password = "IM39project",host = "140.136.155.121",port=50306,DBMSencoding="UTF8")
 dbListTables(connect)
-dbSendQuery(connect,"SET NAMES BIG5") # 設定資料庫連線編碼
+dbSendQuery(connect,"SET NAMES utf8") # 設定資料庫連線編碼
 Sys.getlocale(category = "LC_ALL") # 查詢系統編碼環境
 #Sys.setlocale("LC_ALL","Chinese") # 設定系統編碼為簡體中文
 print(11)
