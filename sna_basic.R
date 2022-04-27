@@ -19,12 +19,12 @@ print("16")
 connect = dbConnect(MySQL(), dbname = inId2 ,username = "root",
                     password = "IM39project",host = "140.136.155.121",port=50306,DBMSencoding="UTF8")
 dbListTables(connect)
-dbSendQuery(connect,"SET NAMES BIG5") # 設定資料庫連線編碼
+dbSendQuery(connect,"SET NAMES utf8") # 設定資料庫連線編碼
 Sys.getlocale("LC_ALL") #解決中文編碼問題
 print("22")
 #建立權重表矩陣
 the_max_node <- as.numeric(dbGetQuery(connect,paste0("select max(`id`) from `",inId2,"`.node where dataset = ",inId3)))#取出節點最大值
-print(the_max_node)
+#print(the_max_node)
 print("27")
 data <- dbGetQuery(connect,paste0("select * from `",inId2,"`.weight where dataset =",inId3))
 print("29")
@@ -89,7 +89,7 @@ print("69")
 #print(node)
 edge <- data.frame(from=c(edge_list$from_id),to=c(inId_is_to_id[,2],inId_is_from_id[,3]),title=paste("Weight:",edge_list$weight), value=c(inId_is_to_id[,4],inId_is_from_id[,4]),width=c(inId_is_to_id[,4],inId_is_from_id[,4]))
 print("71")
-#print(edge)
+print(edge)
 basic_pic <- visNetwork(node, edge, width = "100%", height = "500px")%>%
   visNodes(size = 30)%>%
   visOptions(highlightNearest = TRUE, selectedBy= "label",nodesIdSelection = list(
