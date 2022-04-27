@@ -32,7 +32,7 @@ from_id_name <- dbGetQuery(connect, paste0("select `name` from `",inId1,"`.weigh
 to_id_name <- dbGetQuery(connect, paste0("select `name` from `",inId1,"`.weight w, `",inId1,"`.node n where w.to_id = n.id and w.dataset = ",inId2))
 node <- data.frame(id=c(node_all[,3]), name=c(node_all[,5]), title=c(node_all[,5]), label=c(node_all[,5]), group=c(node_all[,5]), font.size=20)
 #print(node)
-edge <- data.frame(from=c(node_id$from_id),to=c(node_id$to_id),value=c(node_id$weight),width=c(node_id$weight))
+edge <- data.frame(from=c(node_id$from_id),to=c(node_id$to_id),value=c(node_id$weight),width=c(node_id$weight),title=paste("Weight:",node_id$weight))
 #print(edge)
 
 all_pic <- visNetwork(node, edge, width = "100%", height = "500px")%>%
