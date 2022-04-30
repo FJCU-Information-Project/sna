@@ -66,8 +66,8 @@ if conn:
         for i in range(len(from1_id)):
             layer1_id = from1_id[i]
             #print(from1_id)
-            sql = "SELECT `from_id`, `to_id`,`total` FROM `trans0528`.`weight` where `from_id`=%d" % (
-                layer1_id)
+            #sql = "SELECT `from_id`, `to_id`,`total` FROM `%s`.`weight` where (`from_id`=%d) and `dataset`=%d"%(userId,factorId,datasetId)
+            sql = "SELECT `from_id`, `to_id`,`total` FROM `%s`.`weight` where (`from_id`=%d or `to_id`=%d) and `dataset`=%d" % (userId,layer1_id,layer1_id,datasetId)
             cursor.execute(sql)  # 執行 SQL
             layer2Result = (cursor.fetchall())  # 取出全部資料
             #if layer2Result != ():

@@ -12,7 +12,6 @@ layer_csv<- read.csv(file = "E://GitHub/Flask/layer.csv", encoding = "UTF-8")
 layertable_csv<- read.csv(file = "E://GitHub/Flask/layertable.csv", encoding = "UTF-8")
 names(layer_csv)[1] <- "factor_id"#將第一個欄名變更
 #print(layertable_csv)
-
 connect = dbConnect(MySQL(), dbname = layerUserId,username = "root",
                     password = "IM39project",host = "140.136.155.121",port=50306,DBMSencoding="UTF8")
 dbListTables(connect)
@@ -20,9 +19,9 @@ dbSendQuery(connect,"SET NAMES utf8") # 設定資料庫連線編碼
 Sys.getlocale(category = "LC_ALL") # 查詢系統編碼環境
 layer_to_id<-data.frame(from_id = c(layer_csv$factor_id),id = c(layer_csv$near_id),group=c(layer_csv$level),color=c(layer_csv$color),total=c(layer_csv$weight))
 # node_layer<- dbGetQuery(connect ,"select * from `node`")
-node_layer<-dbGetQuery(connect ,paste0("select * from `node` where dataset=",layerDatasetId))
+node_layer<-dbGetQuery(connect ,paste0("select * from `",layerUserId,"`.node where dataset=",layerDatasetId))
 # attr_layer<- dbGetQuery(connect ,"select * from `attribute`")
-attr_layer<- dbGetQuery(connect ,paste0("select * from `attribute` where dataset=",layerDatasetId))
+attr_layer<- dbGetQuery(connect ,paste0("select * from `",layerUserId,"`.attribute where dataset=",layerDatasetId))
 
 names(attr_layer)[2] <- "attribute"
 names(attr_layer)[3] <- "attr_name"
@@ -110,8 +109,9 @@ names(layer3_node_name)[15]<-"third_attr_name"
 print(11)
 layer3_node_name$sum_weight <- layer3_node_name$weight1 + layer3_node_name$weight2
 #print(layer3_node_name)
+layer3_node_name<-layer3_node_name[order(layer3_node_name$weight1, decreasing = TRUE), ]
 layerTableWeb<-layer3_node_name[order(layer3_node_name$sum_weight, decreasing = TRUE), ]
-#print(layerTableWeb)
+print(layerTableWeb)
 #層級分析csv表(欄位:第一層id、名稱、權重 和 第二層id、名稱、權重)
 layerTable<- data.frame(first_id = c(all_from_layer_node $from_id)
                         ,first_name = c(all_from_layer_node $name.y)

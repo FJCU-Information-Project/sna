@@ -12,6 +12,12 @@ args <- commandArgs(trailingOnly = TRUE)
 
 inId1 <- args[1] #(資料庫名稱，使用者代號user_id)
 inId2 <- args[2] #(資料表名稱，dataset_id)
+inId1 <- as.character(inId1)
+inId2 <- as.character(inId2)
+print(inId1)
+print(inId2)
+print(class(inId1))
+print(class(inId2))
 #inId3 <- args[3] #選取想看的權重程度(前10%、前20%、前30%.....全部(100%))，以小數位回傳(0.1、0.2、0.3、....、1)
 #inId3 <- as.numeric(inId3)
 connect = dbConnect(MySQL(), dbname = inId1,username = "root",
@@ -25,8 +31,11 @@ max_weight <- as.numeric(dbGetQuery(connect, paste0("select max(`total`) from `"
 #max_weight <- max_weight*(1-inId3)
 max_weight <- max_weight*(1-0.2) #目前直接設定顯示關聯程度前20%
 node_all <- dbGetQuery(connect, paste0("select * from `",inId1,"`.node where dataset = ",inId2))
+print(34)
 node_id <- dbGetQuery(connect, paste0("select * from `",inId1,"`.weight where (total > ",max_weight,") and dataset = ",inId2))
+print(90)
 node_id <- data.frame(from_id=c(node_id[,2]), to_id=c(node_id[,3]), weight=c(node_id[,4]))
+
 node_id <- node_id[order(-node_id$weight),]
 
 from_id_name <- dbGetQuery(connect, paste0("select `name` from `",inId1,"`.weight w, `",inId1,"`.node n where w.from_id = n.id and w.dataset = ",inId2))

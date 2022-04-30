@@ -11,11 +11,11 @@ library(RMySQL)
 library(sna)
 print("12")
 args <- commandArgs(trailingOnly = TRUE)
-inId1 <- args[1] # CLI input parameter(起使節點id)
-inId2 <- args[2] #(資料庫名稱，使用者代號user_id)
-inId3 <- args[3] #(資料表名稱，dataset_id)
+inId1 <- args[3] # CLI input parameter(起使節點id)
+inId2 <- args[1] #(資料庫名稱，使用者代號user_id)
+inId3 <- args[2] #(資料表名稱，dataset_id)
 #inId <- 17
-print("16")
+print(inId1)
 connect = dbConnect(MySQL(), dbname = inId2 ,username = "root",
                     password = "IM39project",host = "140.136.155.121",port=50306,DBMSencoding="UTF8")
 dbListTables(connect)
@@ -72,38 +72,40 @@ print("57")
 #write.csv(basic_table,"C:/Users/User/Desktop/basic_table.csv", row.names = FALSE, fileEncoding = "UTF-8")
 #write.csv(data_matrix,"C:/Users/User/Desktop/data_table.csv", row.names = FALSE, fileEncoding = "UTF-8")
 
-#畫圖
-inId_is_from_id <- dbGetQuery(connect,paste0("select * from `",inId2,"`.weight w,`",inId2,"`.node n where w.`from_id` = ",inId1," and w.to_id = n.id and w.dataset =",inId3))
-print("77")
-print(inId_is_from_id)
-inId_is_to_id <- dbGetQuery(connect,paste0("select * from `",inId2,"`.weight w,`",inId2,"`.node n where w.`to_id` = ",inId1," and w.from_id = n.id and w.dataset =",inId3))
-print("79")
-#print(inId_is_to_id)
-inId_name <- dbGetQuery(connect,paste0("select `name` from `",inId2,"`.node where id = ",inId1," and dataset =",inId3))
-print("65")
-#print(inId_name)
-node <- data.frame(id=c(inId1,inId_is_to_id[,2],inId_is_from_id[,3]),name=c(inId_name[1,1],inId_is_to_id[,9],inId_is_from_id[,9]),label=c(inId_name[1,1],inId_is_to_id[,9],inId_is_from_id[,9]),title=c(inId_name[1,1],inId_is_to_id[,9],inId_is_from_id[,9]),font.size = 20)
-print("67")
-edge_list <- data.frame(from_id=c(inId1),to_id=c(inId_is_to_id[,2],inId_is_from_id[,3]),weight=c(inId_is_to_id[,4],inId_is_from_id[,4]))
-print("69")
-#print(node)
-edge <- data.frame(from=c(edge_list$from_id),to=c(inId_is_to_id[,2],inId_is_from_id[,3]),title=paste("Weight:",edge_list$weight), value=c(inId_is_to_id[,4],inId_is_from_id[,4]),width=c(inId_is_to_id[,4],inId_is_from_id[,4]))
-print("71")
-print(edge)
-basic_pic <- visNetwork(node, edge, width = "100%", height = "500px")%>%
-  visNodes(size = 30)%>%
-  visOptions(highlightNearest = TRUE, selectedBy= "label",nodesIdSelection = list(
-    enabled = TRUE,
-    style = 'width: 200px; height: 26px;
-                    background: #f8f8f8;
-                    color: darkblue;
-                    border:none;
-                    outline:none;'))%>%
-  visPhysics(stabilization = FALSE,#動態效果
-             solver = "repulsion",
-             repulsion = list(gravitationalConstant = 1500))
-print("81")
-visSave(basic_pic, file = "../flask/templates/basic.html",selfcontained = FALSE, background = "white")
+if(!is.na(inId1)){
+  #有參數再畫圖
+  inId_is_from_id <- dbGetQuery(connect,paste0("select * from `",inId2,"`.weight w,`",inId2,"`.node n where w.`from_id` = ",inId1," and w.to_id = n.id and w.dataset =",inId3))
+  print("77")
+  print(inId_is_from_id)
+  inId_is_to_id <- dbGetQuery(connect,paste0("select * from `",inId2,"`.weight w,`",inId2,"`.node n where w.`to_id` = ",inId1," and w.from_id = n.id and w.dataset =",inId3))
+  print("79")
+  #print(inId_is_to_id)
+  inId_name <- dbGetQuery(connect,paste0("select `name` from `",inId2,"`.node where id = ",inId1," and dataset =",inId3))
+  print("65")
+  #print(inId_name)
+  node <- data.frame(id=c(inId1,inId_is_to_id[,2],inId_is_from_id[,3]),name=c(inId_name[1,1],inId_is_to_id[,9],inId_is_from_id[,9]),label=c(inId_name[1,1],inId_is_to_id[,9],inId_is_from_id[,9]),title=c(inId_name[1,1],inId_is_to_id[,9],inId_is_from_id[,9]),font.size = 20)
+  print("67")
+  edge_list <- data.frame(from_id=c(inId1),to_id=c(inId_is_to_id[,2],inId_is_from_id[,3]),weight=c(inId_is_to_id[,4],inId_is_from_id[,4]))
+  print("69")
+  #print(node)
+  edge <- data.frame(from=c(edge_list$from_id),to=c(inId_is_to_id[,2],inId_is_from_id[,3]),title=paste("Weight:",edge_list$weight), value=c(inId_is_to_id[,4],inId_is_from_id[,4]),width=c(inId_is_to_id[,4],inId_is_from_id[,4]))
+  print("71")
+  print(edge)
+  basic_pic <- visNetwork(node, edge, width = "100%", height = "500px")%>%
+    visNodes(size = 30)%>%
+    visOptions(highlightNearest = TRUE, selectedBy= "label",nodesIdSelection = list(
+      enabled = TRUE,
+      style = 'width: 200px; height: 26px;
+                      background: #f8f8f8;
+                      color: darkblue;
+                      border:none;
+                      outline:none;'))%>%
+    visPhysics(stabilization = FALSE,#動態效果
+              solver = "repulsion",
+              repulsion = list(gravitationalConstant = 1500))
+  print("81")
+  visSave(basic_pic, file = "../flask/templates/basic.html",selfcontained = FALSE, background = "white")
+}
 print("before csv")
 write.csv(basic_table,"../flask/basic_table.csv", row.names = FALSE, fileEncoding = "UTF-8")
 print("create csv")

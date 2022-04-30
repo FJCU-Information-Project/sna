@@ -1,6 +1,7 @@
 #ctrl shift + c 多行註解
 
 print("Hello Before library")
+
 library(visNetwork)
 #library(sqldf)
 #library(RODBC)
@@ -26,20 +27,21 @@ Sys.getlocale(category = "LC_ALL") # 查詢系統編碼環境
 #Sys.setlocale("LC_ALL","Chinese") # 設定系統編碼為簡體中文
 print(11)
 # node8<- dbGetQuery(connect ,paste("select * from `node` where `id`=", id))
-node8<- dbGetQuery(connect ,paste("select * from node where id=",id," and dataset=",rankDatasetId))
+node8<- dbGetQuery(connect ,paste0("select * from `",rankUserId,"`.node where id=",id," and dataset=",rankDatasetId))
 print(node8)
 # relationship8<- dbGetQuery(connect ,paste("select * from `weight` where `from_id`= ",id))
-relationship8<- dbGetQuery(connect ,paste("select * from weight where from_id= ",id,"and dataset=",rankDatasetId))
+relationship8<- dbGetQuery(connect ,paste0("select * from `",rankUserId,"`.weight where from_id=",id," and dataset=",rankDatasetId))
 # relationship_toid<- dbGetQuery(connect ,paste("select * from `weight` where `to_id`=",id))
-relationship_toid<- dbGetQuery(connect ,paste("select * from weight where `to_id`=",id,"and dataset=",rankDatasetId))
+relationship_toid<- dbGetQuery(connect ,paste0("select * from `",rankUserId,"`.weight where `to_id`=",id," and dataset=",rankDatasetId))
 names(relationship_toid)[3] <- "to_id"
 names(relationship_toid)[4] <- "from_id"
-
+print(99)
 #選擇from_id
 #weight10<- dbGetQuery(connect ,paste("select * from `weight` where `from_id`= ", id, " order by `total` desc"))
-weight10<- dbGetQuery(connect ,paste("select * from weight where `from_id`= ", id,"and dataset=",rankDatasetId,"order by `total` desc"))
+weight10<- dbGetQuery(connect ,paste0("select * from `",rankUserId,"`.weight where `from_id`= ",id," and dataset=",rankDatasetId," order by `total` desc"))
 # weight_toid<- dbGetQuery(connect ,paste("select * from `weight` where `to_id`=",id,"order by `total` desc"))
-weight_toid<- dbGetQuery(connect ,paste("select * from weight where `to_id`=",id,"and dataset=",rankDatasetId,"order by `total` desc"))
+weight_toid<- dbGetQuery(connect ,paste0("select * from `",rankUserId,"`.weight where `to_id`=",id," and dataset=",rankDatasetId," order by `total` desc"))
+print(23)
 names(weight_toid)[2] <- "to_id"
 names(weight_toid)[3] <- "from_id"
 weight10<-rbind(weight10,weight_toid)
@@ -62,8 +64,8 @@ while (c <= count_toid){
 bn<-data.frame(id =bindnode[1,2])
 bb<-data.frame(id = (bindnode$to_id))
 bb<-rbind(bn,bb)
-t3<- dbGetQuery(connect ,paste0("select * from `node`where dataset=",rankDatasetId))
-a<- dbGetQuery(connect ,paste0("select * from `attribute` where dataset=",rankDatasetId))
+t3<- dbGetQuery(connect ,paste0("select * from `",rankUserId,"`.node where dataset=",rankDatasetId))
+a<- dbGetQuery(connect ,paste0("select * from `",rankUserId,"`.attribute where dataset=",rankDatasetId))
 names(a)[2] <- "attribute"
 names(a)[3] <- "attr_name"
 getTitle<- merge(x = t3, y = a, by = "attribute", all.x = TRUE)#left join
@@ -118,11 +120,12 @@ rank<-bindnode[order(floor(rank(bindnode$Rank))),]
 #                     password = "IM39project",host = "140.136.155.121",port=50306,DBMSencoding="UTF8")
 # dbListTables(connect)
 # Sys.setlocale("LC_ALL","Chinese") #解決中文編碼問題
-ranknode<- dbGetQuery(connect ,paste0("select * from `node` where dataset=",rankDatasetId))
-rankatr<- dbGetQuery(connect ,paste0("select * from `attribute`where dataset=",rankDatasetId))
+ranknode<- dbGetQuery(connect ,paste0("select * from `",rankUserId,"`.node where dataset=",rankDatasetId))
+rankatr<- dbGetQuery(connect ,paste0("select * from `",rankUserId,"`.attribute where dataset=",rankDatasetId))
 names(ranknode)[3] <- "to_id"
 ranknodename<- merge(x = rank, y = ranknode, by = "to_id", all.x = TRUE)#left join
 library(dplyr)#使用arrange函數
+print('seventeen right here')
 newrank<-arrange(ranknodename, Rank) # 按 Rank 列進行升序排列
 # rankTable<- data.frame(肇事因素 = c(newrank$name)
 #           , 關聯肇事因素排名 = c(newrank$Rank)
