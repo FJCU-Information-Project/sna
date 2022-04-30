@@ -89,7 +89,7 @@ if(!is.na(inId1)){
   print("69")
   #print(node)
   edge <- data.frame(from=c(edge_list$from_id),to=c(inId_is_to_id[,2],inId_is_from_id[,3]),title=paste("Weight:",edge_list$weight), value=c(inId_is_to_id[,4],inId_is_from_id[,4]),width=c(inId_is_to_id[,4],inId_is_from_id[,4]))
-  edge <- subset(edge,value != 0) #權重為0的不要建立起關聯
+  edge <- subset(edge,value != 0)
   print("71")
   print(edge)
   basic_pic <- visNetwork(node, edge, width = "100%", height = "500px")%>%
