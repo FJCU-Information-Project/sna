@@ -21,9 +21,9 @@ dbSendQuery(connect,"SET NAMES utf8") # 設定資料庫連線編碼
 Sys.getlocale("LC_ALL") #解決中文編碼問題
 print("21")
 print(inId1)
-toIdName<-(dbGetQuery(connect ,paste0("select * from `",inId2,"`.node n,`",inId2,"`.result_weight r where n.id = r.to_id and r.dataset = ",inId3," and total != 0")))
+toIdName<-(dbGetQuery(connect ,paste0("select * from `",inId2,"`.node n,`",inId2,"`.result_weight r where n.id = r.to_id and r.dataset = ",inId3," and r.total != 0")))
 #print(toIdName)
-select_result <- data.frame(c(dbGetQuery(connect ,paste0("select * from `",inId2,"`.node n,`",inId2,"`.result_weight r where n.id = r.from_id and r.dataset = ",inId3," and total != 0"))),to_id_name=c(toIdName[,5])) 
+select_result <- data.frame(c(dbGetQuery(connect ,paste0("select * from `",inId2,"`.node n,`",inId2,"`.result_weight r where n.id = r.from_id and r.dataset = ",inId3," and r.total != 0"))),to_id_name=c(toIdName[,5])) 
 #print(select_result)
 select_result_chosen <- select_result[select_result$result==inId1,] #拿到某結果為條件下的所有資料
 #print(select_result_chosen)
