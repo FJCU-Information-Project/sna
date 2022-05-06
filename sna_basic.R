@@ -76,7 +76,7 @@ if(!is.na(inId1)){
   #有參數再畫圖
   inId_is_from_id <- dbGetQuery(connect,paste0("select * from `",inId2,"`.weight w,`",inId2,"`.node n where w.`from_id` = ",inId1," and w.to_id = n.id and w.dataset =",inId3))
   print("77")
-  print(inId_is_from_id)
+  #print(inId_is_from_id)
   inId_is_to_id <- dbGetQuery(connect,paste0("select * from `",inId2,"`.weight w,`",inId2,"`.node n where w.`to_id` = ",inId1," and w.from_id = n.id and w.dataset =",inId3))
   print("79")
   #print(inId_is_to_id)
@@ -84,6 +84,7 @@ if(!is.na(inId1)){
   print("65")
   #print(inId_name)
   node <- data.frame(id=c(inId1,inId_is_to_id[,2],inId_is_from_id[,3]),name=c(inId_name[1,1],inId_is_to_id[,9],inId_is_from_id[,9]),label=c(inId_name[1,1],inId_is_to_id[,9],inId_is_from_id[,9]),title=c(inId_name[1,1],inId_is_to_id[,9],inId_is_from_id[,9]),font.size = 20)
+  node <- subset(node[!duplicated(node$id),])
   print("67")
   edge_list <- data.frame(from_id=c(inId1),to_id=c(inId_is_to_id[,2],inId_is_from_id[,3]),weight=c(inId_is_to_id[,4],inId_is_from_id[,4]))
   print("69")
@@ -91,7 +92,7 @@ if(!is.na(inId1)){
   edge <- data.frame(from=c(edge_list$from_id),to=c(inId_is_to_id[,2],inId_is_from_id[,3]),title=paste("Weight:",edge_list$weight), value=c(inId_is_to_id[,4],inId_is_from_id[,4]),width=c(inId_is_to_id[,4],inId_is_from_id[,4]))
   edge <- subset(edge,value != 0) #權重為0的不要建立起關聯
   print("71")
-  print(edge)
+  #print(edge)
   basic_pic <- visNetwork(node, edge, width = "100%", height = "500px")%>%
     visNodes(size = 30)%>%
     visOptions(highlightNearest = TRUE, selectedBy= "label",nodesIdSelection = list(
