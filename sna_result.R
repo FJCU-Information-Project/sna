@@ -21,9 +21,11 @@ dbSendQuery(connect,"SET NAMES utf8") # 設定資料庫連線編碼
 Sys.getlocale("LC_ALL") #解決中文編碼問題
 print("21")
 print(inId1)
-toIdName<-(dbGetQuery(connect ,paste0("select * from `",inId2,"`.node n,`",inId2,"`.result_weight r where n.id = r.to_id and r.dataset = ",inId3," and r.total != 0")))
+print(inId2)
+print(inId3)
+toIdName<-(dbGetQuery(connect ,paste0("select * from `",inId2,"`.node n,`",inId2,"`.result_weight r where n.id = r.to_id and n.dataset = ",inId3," and r.total != 0")))
 #print(toIdName)
-select_result <- data.frame(c(dbGetQuery(connect ,paste0("select * from `",inId2,"`.node n,`",inId2,"`.result_weight r where n.id = r.from_id and r.dataset = ",inId3," and r.total != 0"))),to_id_name=c(toIdName[,5])) 
+select_result <- data.frame(c(dbGetQuery(connect ,paste0("select * from `",inId2,"`.node n,`",inId2,"`.result_weight r where n.id = r.from_id and n.dataset = ",inId3," and r.total != 0"))),to_id_name=c(toIdName[,5])) 
 #print(select_result)
 select_result_chosen <- select_result[select_result$result==inId1,] #拿到某結果為條件下的所有資料
 #print(select_result_chosen)
@@ -80,12 +82,12 @@ draw_node <- draw_node[!duplicated(draw_node$id),]
 print("65")
 #print(draw_node)
 #print(length(draw_node$id))
-node <- data.frame(id=c(draw_node[,1]),label = c(draw_node[,2]),title = c(draw_node[,2]),group = draw_node[,2],font.size = 20)
+node <- data.frame(id=c(draw_node[,1]),label = c(draw_node[,2]),title = c(draw_node[,2]),group = c(draw_node[,2]),font.size = 20)
 #print(weight)
 print("68")
 edge <- data.frame(from=c(draw_from_id), to=c(draw_to_id), value=c(weight), title=paste("Weight:",weight,"Rank:",list$rank),label=c(weight), font.size=10)
 print(node)
-print(edge)
+#print(edge)
 edge$width <- weight
 print("47")
 #print(inId1)
@@ -94,7 +96,7 @@ print("47")
 #print(edge)
 result_table<- data.frame(rank=c(list$rank),from_id=c(rank_weight$from_id),from_id_name=c(rank_weight$name),to_id=c(rank_weight$to_id),to_id_name=c(rank_weight$to_id_name),total=c(rank_weight$total))
 write.csv(result_table,paste0("..",.Platform$file.sep,"Flask",.Platform$file.sep,"result_table.csv"), row.names = FALSE, fileEncoding = "UTF-8")
-#print(result_table)
+print(result_table)
 print(52)
 result_pic <- visNetwork(node, edge, width = "100%", height = "500px")%>%
   visNodes(size = 10)%>%
