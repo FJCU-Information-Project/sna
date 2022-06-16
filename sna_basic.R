@@ -16,6 +16,8 @@ inId2 <- args[1] #(資料庫名稱，使用者代號user_id)
 inId3 <- args[2] #(資料表名稱，dataset_id)
 #inId <- 17
 print(inId1)
+print(inId2)
+print(inId3)
 connect = dbConnect(MySQL(), dbname = inId2 ,username = "root",
                     password = "IM39project",host = "140.136.155.121",port=50306,DBMSencoding="UTF8")
 dbListTables(connect)
